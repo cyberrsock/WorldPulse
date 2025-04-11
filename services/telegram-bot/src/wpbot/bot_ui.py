@@ -2,22 +2,26 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 
 
+SCHEDULE_CMD_PREFIX = "sch"
+CATEGORY_CMD_PREFIX = "cat"
+SOURCES_CMD_PREFIX = "src"
+
+
 async def show_schedule_menu(
     update: Update, context: CallbackContext, has_days_selected: bool, schedule_items: dict
 ):
-    command_prefix = "setup_schedule"
     keyboard = [
         [
             InlineKeyboardButton(
                 f"{option}{' ✅' if times is not None else ''}",
-                callback_data=f"{command_prefix}:days={option}",
+                callback_data=f"{SCHEDULE_CMD_PREFIX}:days={option}",
             )
             for option, times in schedule_items
         ],
         [
             InlineKeyboardButton(
                 "Ежедневно",
-                callback_data=f"{command_prefix}:days=everyday",
+                callback_data=f"{SCHEDULE_CMD_PREFIX}:days=everyday",
             )
         ],
     ]
@@ -26,7 +30,7 @@ async def show_schedule_menu(
             [
                 InlineKeyboardButton(
                     "Установить время рассылки",
-                    callback_data=f"{command_prefix}:time",
+                    callback_data=f"{SCHEDULE_CMD_PREFIX}:time",
                 )
             ]
         )
@@ -39,12 +43,12 @@ async def show_schedule_menu(
 
 async def show_setup_menu(update: Update, context: CallbackContext, is_setup_finished: bool):
     keyboard = [
-        [InlineKeyboardButton("Настроить расписание", callback_data="sch:")],
-        [InlineKeyboardButton("Настроить категории новостей", callback_data="cat:")],
-        [InlineKeyboardButton("Настроить источники", callback_data="src:")],
+        [InlineKeyboardButton("Настроить расписание", callback_data=f"{SCHEDULE_CMD_PREFIX}:")],
+        [InlineKeyboardButton("Настроить категории новостей", callback_data=f"{CATEGORY_CMD_PREFIX}:")],
+        [InlineKeyboardButton("Настроить источники", callback_data=f"{SOURCES_CMD_PREFIX}:")],
     ]
     if is_setup_finished:
-        keyboard.append([InlineKeyboardButton("Завершить настройку", callback_data="setup_finish")])
+        keyboard.append([InlineKeyboardButton("Завершить настройку", callback_data="finish:")])
     reply_markup = InlineKeyboardMarkup(keyboard)
     if update.message is not None:
         await update.message.reply_text("Выберите действие", reply_markup=reply_markup)
@@ -89,13 +93,13 @@ async def show_categories_setup_menu(
         [
             InlineKeyboardButton(
                 category["name"] + (" ✅" if category["_id"] in user_categories_ids else ""),
-                callback_data=f"cat:cat={i} {category["_id"] in user_categories_ids}",
+                callback_data=f"{CATEGORY_CMD_PREFIX}:cat={i} {category["_id"] in user_categories_ids}",
             )
         ]
         for i, category in enumerate(all_categories)
     ]
     if is_setup_finished:
-        keyboard.append([InlineKeyboardButton("⬅️ Завершить настройку", callback_data="cat:finish")])
+        keyboard.append([InlineKeyboardButton("⬅️ Завершить настройку", callback_data=f"{CATEGORY_CMD_PREFIX}:finish")])
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.callback_query.edit_message_text(
         print_categories_info(all_categories, user_categories), reply_markup=reply_markup
@@ -120,18 +124,18 @@ async def show_category_setup_menu(
         keyboard = [
             [
                 InlineKeyboardButton(
-                    "Изменить оценку", callback_data=f"cat:score={category_index}"
+                    "Изменить оценку", callback_data=f"{CATEGORY_CMD_PREFIX}:score={category_index}"
                 ),
-                InlineKeyboardButton("Удалить", callback_data=f"cat:del={category_index}"),
+                InlineKeyboardButton("Удалить", callback_data=f"{CATEGORY_CMD_PREFIX}:del={category_index}"),
             ]
         ]
     else:
         keyboard = [
             [
-                InlineKeyboardButton("Добавить", callback_data=f"cat:add={category_index}"),
+                InlineKeyboardButton("Добавить", callback_data=f"{CATEGORY_CMD_PREFIX}:add={category_index}"),
             ]
         ]
-    keyboard.append([InlineKeyboardButton("⬅️ Назад", callback_data="cat:back")])
+    keyboard.append([InlineKeyboardButton("⬅️ Назад", callback_data=f"{CATEGORY_CMD_PREFIX}:back")])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.callback_query.edit_message_text(
@@ -141,7 +145,7 @@ async def show_category_setup_menu(
 
 async def show_score_keyboard(update: Update, context: CallbackContext, category_index: int):
     keys = [
-        InlineKeyboardButton(str(i), callback_data=f"cat:score_apply={category_index} {i}")
+        InlineKeyboardButton(str(i), callback_data=f"{CATEGORY_CMD_PREFIX}:score_apply={category_index} {i}")
         for i in range(1, 11)
     ]
     keyboard = [keys[:5], keys[5:]]
@@ -161,13 +165,13 @@ async def show_sources_setup_menu(
         [
             InlineKeyboardButton(
                 src["name"] + (" ✅" if src["_id"] in user_sources_ids else ""),
-                callback_data=f"src:src={i} {src["_id"] in user_sources_ids}",
+                callback_data=f"{SOURCES_CMD_PREFIX}:src={i} {src["_id"] in user_sources_ids}",
             )
         ]
         for i, src in enumerate(all_sources)
     ]
     if is_setup_finished:
-        keyboard.append([InlineKeyboardButton("⬅️ Завершить настройку", callback_data="src:finish")])
+        keyboard.append([InlineKeyboardButton("⬅️ Завершить настройку", callback_data=f"{SOURCES_CMD_PREFIX}:finish")])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.callback_query.edit_message_text("Выберите источники", reply_markup=reply_markup)

@@ -25,8 +25,8 @@ spec:
           - name: EXAMPLE_ENV
             value: "example_value"
           - name: MONGO_HOST
-            value: MONGO_HOST
+            value: {{ .Values.mongoHost | quote }}
           - name: MONGO_PASSWORD
-            value: MONGO_PASSWORD
+            value: {{ .Values.mongoPassword | quote }}
           - name: TG_TOKEN
-            value: TG_TOKEN
+            value: {{ .Values.tgToken | quote }}

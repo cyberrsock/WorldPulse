@@ -34,4 +34,5 @@ FROM python AS service
 WORKDIR /root/app/site-packages
 COPY --from=test_runner /tmp/.mongodb /root/app/site-packages/.mongodb
 COPY --from=test_runner /venv /venv
+COPY --from=builder /usr/src/app/src/wpbot/prompts prompts
 ENV PATH=/venv/bin:$PATH
