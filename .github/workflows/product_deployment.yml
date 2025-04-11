@@ -25,6 +25,7 @@ jobs:
         with:
           env: production
           kube-config-base64-data: ${{ secrets.KUBE_CONFIG_BASE64_DATA }}
+          values: values.yaml
         env:
           WERF_SET_ENV_URL: "envUrl=http://example.com"
           MONGO_HOST: ${{ secrets.MONGO_HOST }}
