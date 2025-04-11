@@ -18,7 +18,7 @@ logging.basicConfig(
 
 
 def get_filename(in_filename: str):
-    dirname = os.path.dirname(__file__)
+    dirname = './prompts'
     return os.path.join(dirname, in_filename)
 
 
@@ -81,11 +81,13 @@ class WPTelegramBot:
         if self.__users_service.get_user(user_id) is None:
             self.__users_service.insert_user(user_id)
 
-        with open(get_filename("prompts/greeting.txt")) as f:
+        with open(get_filename("greeting.txt")) as f:
             await update.message.reply_text(f.read())
 
     async def __help(self, update: Update, context: CallbackContext) -> None:
-        await update.message.reply_text("Here's how I can help you...")
+        filename = get_filename("help.txt")
+        with open(filename) as f:
+            await update.message.reply_text(f.read())
 
     async def __setup(self, update: Update, context: CallbackContext) -> None:
         if update.message is not None:
@@ -100,7 +102,7 @@ class WPTelegramBot:
         self, update: Update, context: CallbackContext, subcommand: str, user_id: int
     ):
         if subcommand == "time":
-            with open(get_filename("prompts/time_input.txt")) as f:
+            with open(get_filename("time_input.txt")) as f:
                 await update.callback_query.message.reply_text(f.read())
 
         if subcommand.count("=") == 1:
@@ -219,6 +221,8 @@ class WPTelegramBot:
             await self.__setup_categories(update, context, subcommand, user_id)
         elif command == "src":
             await self.__setup_sources(update, context, subcommand, user_id)
+        elif command == "finish":
+            await update.callback_query.edit_message_text("Настройки сохранены!")
 
     async def __message_handler_schedule(self, update: Update, context: CallbackContext):
         user_id = update.message.from_user.id
@@ -254,4 +258,3 @@ class WPTelegramBot:
         await self.application.initialize()
         await self.application.start()
         await self.application.updater.start_polling()
-
