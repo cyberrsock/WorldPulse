@@ -27,7 +27,7 @@ class UsersService:
         user = self.__users_repository.get_user(user_id)
         return user["settings"] if user is not None else None
 
-    def update_user_schedule(self, user_id: int, schedule: dict | str):
+    def update_user_schedule(self, user_id: int, schedule: str | dict):
         user_schedule = self.get_user_settings(user_id)["schedule"]
         if isinstance(schedule, str):
             value = (
@@ -38,7 +38,10 @@ class UsersService:
             user_schedule = {key: value for key, _ in user_schedule.items()}
         else:
             for k, v in schedule.items():
-                user_schedule[k] = v if user_schedule[k] is not None else None
+                if v == []:
+                    user_schedule[k] = None if user_schedule[k] is not None else v
+                elif user_schedule[k] is not None:
+                    user_schedule[k] = v
         self.__users_repository.update_user_schedule(user_id, user_schedule)
 
     def add_user_category(self, user_id: int, category: dict):
