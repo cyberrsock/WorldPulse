@@ -30,9 +30,9 @@ async def run_parser():
 
                 # Используем original_channel_name вместо parsed_data['channel_name']
                 mongo.add_news(
-                    channel_name=original_channel_name,
+                    channel=original_channel_name,
                     msg_id=new['msg_id'],
-                    text=new['msg'],
+                    msg=new['msg'],
                     time=new['time']
                 )
 
