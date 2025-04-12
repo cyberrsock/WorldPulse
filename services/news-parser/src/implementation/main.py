@@ -35,6 +35,7 @@ async def run_parser():
                     print("Invalid JSON response from ML service")
                     continue
                 print(ml_data)
+                ml_data["id"] = str(ml_data["id"])
 
                 # Используем original_channel_name вместо parsed_data['channel_name']
                 mongo.add_news(
@@ -45,7 +46,7 @@ async def run_parser():
                 )
 
                 cluster_payload = {
-                    "id": ml_data["id"],
+                    "id": str(ml_data["id"]),
                     "text": ml_data["text"],
                     "embedding": ml_data["embedding"],
                     "classes": ml_data["classes"],

@@ -53,7 +53,7 @@ class MongoDBManager:
             else:
                 # обновляем существующий кластер
                 collection.update_one(
-                    {"_id": ObjectId(cluster_id)},
+                    {"_id": cluster_id},
                     {
                         "$set": {
                             "description": cluster["text"],
