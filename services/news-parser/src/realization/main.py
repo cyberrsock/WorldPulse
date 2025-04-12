@@ -1,7 +1,7 @@
 from parser import *
 from MongoDBManager import MongoDBManager
 
-import time
+import time, requests
 
 
 while True:
