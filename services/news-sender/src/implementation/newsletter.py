@@ -133,6 +133,7 @@ def process_mailing():
 
 # Мега базированный способ ожидать по 5 минут
 async def run():
+    print("Started news sender")
     while True:
         current_min = dt.now().minute
         if current_min % 5 == 0:
