@@ -17,13 +17,14 @@ while True:
 
     for channel in result['news']:
         for new in channel['news']:
-            # a = ml_parser.call(new['msg'])
-            ml_result = {
-                "id": -1,  # или ObjectId существующего
-                "text": "Aboba123",
-                "embedding": "aEicASWpdad89",
-                "classes": ["Экономика", "Внешняя политика"]
-            }
+            ml_result = requests.post('/ml-processor/new_news', json={"text": new['msg']})
+            print(ml_result.json())
+            # ml_result = {
+            #     "id": -1,  # или ObjectId существующего
+            #     "text": "Aboba123",
+            #     "embedding": "aEicASWpdad89",
+            #     "classes": ["Экономика", "Внешняя политика"]
+            # }
 
             mongo.add_news(channel['channel_name'], new['msg_id'], new['msg'], new['time'])
 
