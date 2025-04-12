@@ -23,7 +23,7 @@ class MongoDBManager:
                       content: str, 
                       categories: List[int],
                       database_name: str = "worldpulse",
-                      collection_name: str = "clusterized_news") -> str:
+                      collection_name: str = "news") -> str:
         doc = self.prepare_news_entry(content, categories)
         
         with self._get_connection() as client:
@@ -33,7 +33,7 @@ class MongoDBManager:
 
     def get_all_news(self,
                     database_name: str = "worldpulse",
-                    collection_name: str = "clusterized_news") -> List[Dict]:
+                    collection_name: str = "news") -> List[Dict]:
         with self._get_connection() as client:
             db = client[database_name]
             collection = db[collection_name]
