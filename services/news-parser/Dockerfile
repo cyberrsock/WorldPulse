@@ -30,7 +30,6 @@ RUN mkdir -p /tmp/.mongodb && \
 # run tests
 RUN pytest tests
 
-
 FROM python AS service
 WORKDIR /root/app/site-packages
 COPY --from=test_runner /tmp/.mongodb /root/app/site-packages/.mongodb
