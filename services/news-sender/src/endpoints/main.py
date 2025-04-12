@@ -15,11 +15,16 @@
 from fastapi import FastAPI
 
 from endpoints.apis.default_api import router as DefaultApiRouter
+from realization import newsletter
 
 app = FastAPI(
     title="news-sender",
     description="Сервис для отправки новостей пользователям",
     version="1.0.0",
 )
+
+@app.on_event("startup")
+async def create_task():
+    await newsletter.run()
 
 app.include_router(DefaultApiRouter)

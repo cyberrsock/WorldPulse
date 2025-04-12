@@ -1,9 +1,18 @@
 import datetime, time
+import asyncio
 from datetime import datetime as dt
+import telegram_bot_client
 
+def make_client(lib, host):
+    api_client = lib.ApiClient(lib.Configuration(host=host))
+    return lib.DefaultApi(api_client)
+
+tg_client = make_client(telegram_bot_client, 'http://telegram-bot:8080')
 
 # Функция-симуляция отправки сообщения пользователю
 def send_message(user_id: int, message: str):
+    global tg_client
+    tg_client.send_message(telegram_bot_client.SendMessageRequest(chat_id=user_id, message_text=message))
     print(f"\n=== Отправляем сообщение пользователю {user_id} ===")
     print(message)
     print("=== Сообщение отправлено ===\n")
@@ -137,16 +146,18 @@ def process_mailing():
         else:
             print(f"Пользователь {user_id}: Еще не время. Следующее расписание: {next_schedule.strftime('%H:%M')}")
 
+# Мега базированный способ ожидать по 5 минут
+async def run():
+    while True:
+        current_min = dt.now().minute
+        if current_min % 5 == 0:
+            process_mailing()
+            await asyncio.sleep(60)
+        else:
+            print("Не время рассылки (ожидаем минуты, кратные 5).")
+            await asyncio.sleep(5)
 
-if __name__ == "__main__":
-    # Симулируем работу скрипта, который запускается каждую минуту,
-    # а внутри проверяем, кратно ли время 5 минутам.
-    process_mailing()
-    # while True:
-    #     current_min = dt.now().minute
-    #     if current_min % 5 == 0:
-    #         process_mailing()
-    #         time.sleep(60)
-    #     else:
-    #         print("Не время рассылки (ожидаем минуты, кратные 5).")
-    #         time.sleep(5)
+# if __name__ == "__main__":
+#     # Симулируем работу скрипта, который запускается каждую минуту,
+#     # а внутри проверяем, кратно ли время 5 минутам.
+#     process_mailing()
