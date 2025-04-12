@@ -25,6 +25,7 @@ async def run_parser():
                     'http://ml-processor:8080/ml-processor/new_news',
                     json={"text": new['msg']}
                 )
+                print(ml_result)
                 print(ml_result.json())
 
                 # Используем original_channel_name вместо parsed_data['channel_name']
