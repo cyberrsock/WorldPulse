@@ -90,3 +90,9 @@ class MongoDBManager:
                 }
                 for doc in collection.find()
             ]
+
+    def update_user_last_sending(self, user_id, time_str):
+        self.users_collection.update_one(
+            {"_id": user_id},
+            {"$set": {"settings.last_sending": time_str}}
+        )
