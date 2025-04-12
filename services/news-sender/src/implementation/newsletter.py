@@ -75,12 +75,12 @@ def process_mailing():
         categories = [cat["id"] for cat in settings.get("categories", [])]
         sources = settings.get("sources", [])
 
-        # Время последней рассылки
+        # Время последней рассылки (если нет - используем текущее время)
         try:
-            last_sending = parse_time(settings["last_sending"])
+            last_sending = parse_time(settings.get("last_sending", now.strftime("%H:%M:%S")))
         except Exception as e:
-            print(f"Пользователь {user_id}: Ошибка парсинга времени последней рассылки – {e}")
-            continue
+            print(f"Пользователь {user_id}: Ошибка парсинга времени последней рассылки – {e}. Используем текущее время.")
+            last_sending = now
 
         # Преобразуем расписание для текущего дня (каждый элемент типа "10:00:00")
         schedule_times = []
@@ -124,13 +124,12 @@ def process_mailing():
 
             if msg:
                 send_message(user_id, msg)
-                # Здесь можно обновить время последней рассылки в БД, если требуется
-                settings["last_sending"] = now.strftime("%H:%M:%S")
+                # Обновляем время последней рассылки в БД
+                mongo_manager.update_user_last_sending(user_id, now.strftime("%H:%M:%S"))
             else:
                 print(f"Пользователь {user_id}: Нет новостей для рассылки.")
         else:
             print(f"Пользователь {user_id}: Еще не время. Ближайшее расписание: {next_schedule.strftime('%H:%M:%S')}")
-
 
 # Мега базированный способ ожидать по 5 минут
 async def run():
