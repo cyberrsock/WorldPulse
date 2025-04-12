@@ -35,9 +35,17 @@ today_str = dt.now().strftime("%Y-%m-%d")
 
 
 def parse_time(time_str: str) -> dt:
-    # time_str — строка в формате "HH:MM", комбинируем с сегодняшней датой
-    return dt.strptime(today_str + "T" + time_str + ":00", "%Y-%m-%dT%H:%M:%S")
-
+    """Парсит время в формате HH:MM или HH:MM:SS"""
+    try:
+        # Пробуем парсить с секундами
+        return dt.strptime(today_str + "T" + time_str, "%Y-%m-%dT%H:%M:%S")
+    except ValueError:
+        try:
+            # Если не получилось, пробуем без секунд
+            return dt.strptime(today_str + "T" + time_str + ":00", "%Y-%m-%dT%H:%M:%S")
+        except ValueError as e:
+            print(f"Ошибка парсинга времени '{time_str}': {e}")
+            return dt.now()  # Возвращаем текущее время как fallback
 
 def process_mailing():
     mongo_manager = MongoDBManager()
@@ -125,7 +133,7 @@ def process_mailing():
             if msg:
                 send_message(user_id, msg)
                 # Обновляем время последней рассылки в БД
-                mongo_manager.update_user_last_sending(user_id, now.strftime("%H:%M:%S"))
+                mongo_manager.update_user_last_sending(user_id, now.strftime("%Y-%m-%d %H:%M:%S"))
             else:
                 print(f"Пользователь {user_id}: Нет новостей для рассылки.")
         else:
