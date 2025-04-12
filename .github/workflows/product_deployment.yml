@@ -13,11 +13,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Create values file with secrets
         run: |
-          echo "mongoHost: ${{ secrets.MONGO_HOST }}" >> values.yaml
-          echo "mongoPassword: ${{ secrets.MONGO_PASSWORD }}" >> values.yaml
-          echo "tgToken: ${{ secrets.TG_TOKEN }}" >> values.yaml
+          echo "mongoHost: ${{ secrets.MONGO_HOST }}" >> .helm/values.yaml
+          echo "mongoPassword: ${{ secrets.MONGO_PASSWORD }}" >> .helm/values.yaml
+          echo "tgToken: ${{ secrets.TG_TOKEN }}" >> .helm/values.yaml
+          echo "tgApiHash: ${{ secrets.TG_API_HASH }}" >> .helm/values.yaml
+          echo "tgApiId: ${{ secrets.TG_API_ID }}" >> .helm/values.yaml
 
       - name: Converge
         uses: werf/actions/converge@v1.2
@@ -27,6 +30,3 @@ jobs:
           values: values.yaml
         env:
           WERF_SET_ENV_URL: "envUrl=http://example.com"
-          MONGO_HOST: ${{ secrets.MONGO_HOST }}
-          MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
-          TG_TOKEN: ${{ secrets.TG_TOKEN }}
