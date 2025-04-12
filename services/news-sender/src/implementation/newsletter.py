@@ -47,97 +47,87 @@ def parse_time(time_str: str) -> dt:
             print(f"Ошибка парсинга времени '{time_str}': {e}")
             return dt.now()  # Возвращаем текущее время как fallback
 
+
 def process_mailing():
     mongo_manager = MongoDBManager()
-    now = dt.now()
-    print(f"Текущее время: {now.strftime('%H:%M:%S')}")
+    tz = timezone(timedelta(hours=3))
+    now = dt.now(tz)
+    print(f"Текущее время: {now.strftime('%Y-%m-%d %H:%M:%S %Z')}")
 
-    # Получаем данные из MongoDB
     news_data = mongo_manager.get_news_dict()
     clusterized_news = mongo_manager.get_clusterized_news()
     users = mongo_manager.get_users()
 
-    # Маппинг weekday для русского расписания:
-    day_mapping = {
-        0: "Пн",
-        1: "Вт",
-        2: "Ср",
-        3: "Чт",
-        4: "Пт",
-        5: "Сб",
-        6: "Вс"
-    }
+    day_mapping = {0: "Пн", 1: "Вт", 2: "Ср", 3: "Чт", 4: "Пт", 5: "Сб", 6: "Вс"}
     today_key = day_mapping[now.weekday()]
 
     for user in users:
         user_id = user["_id"]
-        settings = user["settings"]
-        # Получаем расписание именно для текущего дня
+        settings = user.get("settings", {})
         user_schedule = settings.get("schedule", {})
         day_schedule = user_schedule.get(today_key)
         if not day_schedule:
-            print(f"Пользователь {user_id}: Нет расписания для сегодня ({today_key}).")
+            print(f"Пользователь {user_id}: Нет расписания на сегодня ({today_key}).")
             continue
 
-        # Для категорий и источников предполагаем, что они хранятся как идентификаторы
         categories = [cat["id"] for cat in settings.get("categories", [])]
         sources = settings.get("sources", [])
 
-        # Время последней рассылки (если нет - используем текущее время)
-        try:
-            last_sending = parse_time(settings.get("last_sending", now.strftime("%H:%M:%S")))
-        except Exception as e:
-            print(f"Пользователь {user_id}: Ошибка парсинга времени последней рассылки – {e}. Используем текущее время.")
+        # Парсинг last_sending с учётом таймзоны
+        last_sending_str = settings.get("last_sending")
+        if last_sending_str:
+            try:
+                last_sending = dt.fromisoformat(last_sending_str).astimezone(tz)
+            except Exception as e:
+                print(f"Пользователь {user_id}: Ошибка парсинга last_sending: {e}. Используется текущее время.")
+                last_sending = now
+        else:
             last_sending = now
 
-        # Преобразуем расписание для текущего дня (каждый элемент типа "10:00:00")
         schedule_times = []
-        for t in day_schedule:
+        for time_str in day_schedule:
             try:
-                st = parse_time(t)
-                if st > last_sending:
-                    schedule_times.append(st)
+                parsed_time = dt.strptime(time_str, "%H:%M:%S").time()
+                schedule_dt = dt.combine(now.date(), parsed_time).replace(tzinfo=tz)
+                if schedule_dt > last_sending:
+                    schedule_times.append(schedule_dt)
             except Exception as e:
-                print(f"Пользователь {user_id}: Неверный формат расписания {t} – {e}")
+                print(f"Пользователь {user_id}: Неверный формат времени {time_str}: {e}")
                 continue
 
         if not schedule_times:
-            print(f"Пользователь {user_id}: Нет будущих расписаний после последней рассылки.")
+            print(f"Пользователь {user_id}: Нет предстоящих рассылок после {last_sending.strftime('%H:%M:%S')}.")
             continue
 
         next_schedule = min(schedule_times)
-        # Если ближайшее расписанное время уже настало
         if next_schedule <= now:
-            print(f"Пользователь {user_id}: Пора рассылать (ближайшее расписание: {next_schedule.strftime('%H:%M:%S')}).")
+            print(f"Пользователь {user_id}: Рассылаем. Время: {next_schedule.strftime('%H:%M:%S')}.")
             msg = ""
-            # Фильтруем кластеры:
             for cluster in clusterized_news:
-                cluster_last_time = dt.strptime(cluster["last_time"], "%Y-%m-%dT%H:%M:%S")
-                # Проверяем, что кластер свежий и хотя бы одна категория присутствует
-                if cluster_last_time < last_sending or not any(cat in categories for cat in cluster['classes']):
+                cluster_last_time = dt.fromisoformat(cluster["last_time"]).astimezone(tz)
+                if cluster_last_time < last_sending:
+                    continue
+                if not any(cat in categories for cat in cluster.get('classes', [])):
                     continue
 
-                # Из кластера собираем каналы по новостям
-                channels_in_cluster = set()
+                channels = set()
                 for msg_id in cluster["news_ids"]:
-                    news_doc = news_data.get(str(msg_id))
-                    if news_doc:
-                        channels_in_cluster.add(news_doc["channel"])
+                    news = news_data.get(str(msg_id))
+                    if news:
+                        channels.add(news["channel"])
 
-                # Пропускаем кластер, если ни один из каналов не входит в источники пользователя
-                if not any(ch in sources for ch in channels_in_cluster):
+                if not any(ch in sources for ch in channels):
                     continue
 
-                msg += f"{cluster['description']} (Каналы: {', '.join(channels_in_cluster)})\n"
+                msg += f"{cluster['description']} (Каналы: {', '.join(channels)})\n"
 
             if msg:
                 send_message(user_id, msg)
-                # Обновляем время последней рассылки в БД
-                mongo_manager.update_user_last_sending(user_id, now.strftime("%Y-%m-%d %H:%M:%S"))
+                mongo_manager.update_user_last_sending(user_id, now.isoformat())
             else:
-                print(f"Пользователь {user_id}: Нет новостей для рассылки.")
+                print(f"Пользователь {user_id}: Нет подходящих новостей.")
         else:
-            print(f"Пользователь {user_id}: Еще не время. Ближайшее расписание: {next_schedule.strftime('%H:%M:%S')}")
+            print(f"Пользователь {user_id}: Следующая рассылка в {next_schedule.strftime('%H:%M:%S')}.")
 
 # Мега базированный способ ожидать по 5 минут
 async def run():
