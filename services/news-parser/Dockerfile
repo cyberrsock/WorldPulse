@@ -30,11 +30,10 @@ RUN mkdir -p /tmp/.mongodb && \
 # run tests
 RUN pytest tests
 
-
 FROM python AS service
 WORKDIR /root/app/site-packages
 COPY --from=test_runner /tmp/.mongodb /root/app/site-packages/.mongodb
 COPY --from=test_runner /venv /venv
-COPY src/implementation/tg_channels.json tg_channels.json
-COPY src/implementation/session.session session.session
+COPY /services/news-parser/src/implementation/tg_channels.json tg_channels.json
+COPY /services/news-parser/src/implementation/session.session session.session
 ENV PATH=/venv/bin:$PATH
