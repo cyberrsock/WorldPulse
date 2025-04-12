@@ -1,0 +1,163 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: News Aggregation Platform API
+  description: Комплексное API для платформы агрегации новостей
+servers:
+  - url: http://api.example.com/v1
+    description: Production server
+  - url: http://staging-api.example.com/v1
+    description: Staging server
+
+paths:
+  /ml-processor/new_news:
+    post:
+      tags: [ml-processor]
+      summary: Обработка новости ML моделями
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewsTextInput'
+      responses:
+        '200':
+          description: Результат обработки новости
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MLProcessingResult'
+        '400':
+          description: Неверный формат запроса
+        '500':
+          description: Ошибка обработки
+
+  /news-parser/ping:
+    get:
+      tags: [news-parser]
+      summary: Проверка доступности парсера
+      responses:
+        '200':
+          description: Статус сервиса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceStatus'
+
+  /news-sender/ping:
+    get:
+      tags: [news-sender]
+      summary: Проверка доступности отправителя
+      responses:
+        '200':
+          description: Статус сервиса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceStatus'
+
+  /telegram-bot/ping:
+    get:
+      tags: [telegram-bot]
+      summary: Проверка доступности бота
+      responses:
+        '200':
+          description: Статус сервиса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TelegramBotStatus'
+
+  /telegram-bot/internal/send:
+    post:
+      tags: [telegram-bot]
+      summary: Отправка сообщения пользователю
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TelegramMessage'
+      responses:
+        '204':
+          description: Сообщение отправлено
+        '400':
+          description: Неверные параметры запроса
+        '404':
+          description: Пользователь не найден
+
+components:
+  schemas:
+    NewsTextInput:
+      type: object
+      properties:
+        text:
+          type: string
+          description: Текст новости
+          example: "ЦБ РФ повысил ключевую ставку"
+      required: [text]
+
+    MLProcessingResult:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 42
+        text:
+          type: string
+          example: "ЦБ РФ повысил ключевую ставку"
+        embedding:
+          type: string
+          example: "W0.12, 0.45, 0.78]"
+        classes:
+          type: array
+          items:
+            type: string
+          example: ["экономика", "финансы"]
+      required: [id, text, embedding, classes]
+
+    ServiceStatus:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Service is operational"
+        currentTime:
+          type: string
+          format: date-time
+          example: "2023-10-10T14:48:00Z"
+
+    TelegramBotStatus:
+      allOf:
+        - $ref: '#/components/schemas/ServiceStatus'
+        - type: object
+          properties:
+            tg_bot_thing:
+              type: object
+              properties:
+                test_prop:
+                  type: string
+                  example: "test_value"
+
+    TelegramMessage:
+      type: object
+      properties:
+        chat_id:
+          type: integer
+          example: 123456789
+        message_text:
+          type: string
+          minLength: 1
+          example: "Важная новость!"
+      required: [chat_id, message_text]
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
