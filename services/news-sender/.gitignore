@@ -3,9 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-src/endpoints/main.py
-src/implementation
-
 # C extensions
 *.so
 
