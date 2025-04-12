@@ -44,3 +44,24 @@ class MongoDBManager:
                 "categories": doc.get("categories", []),
                 "embedding": doc["embedding"]
             } for doc in collection.find()]
+
+    def get_news_dict(self,
+                      database_name: str = "worldpulse",
+                      collection_name: str = "news") -> Dict[str, Dict]:
+        with self._get_connection() as client:
+            db = client[database_name]
+            collection = db[collection_name]
+
+            news_dict = {}
+            for doc in collection.find():
+                msg_id = doc.get("msg_id")
+                if not msg_id:
+                    continue
+                news_dict[msg_id] = {
+                    "channel": doc.get("channel"),
+                    "content": doc.get("content"),
+                    "datetime": doc.get("datetime").isoformat() if "datetime" in doc else None
+                }
+
+            return news_dict
+

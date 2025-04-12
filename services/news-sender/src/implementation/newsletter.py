@@ -82,8 +82,11 @@ def parse_time(time_str: str) -> dt:
 
 
 def process_mailing():
+    mongo_manager = MongoDBManager()
     now = dt.now()  # текущее время
     print(f"Текущее время: {now.strftime('%H:%M')}")
+
+    news_data = mongo_manager.get_news_dict()
 
     for user in users:
         user_id = user["_id"]
