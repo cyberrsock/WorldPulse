@@ -2,4 +2,6 @@ giterminismConfigVersion: 1
 config:
   allowUncommitted: true
 helm:
-  allowUncommittedFiles: "*.yaml"
+  allowUncommittedFiles:
+    - ".helm/*.yaml"
+    - "*.yaml"
