@@ -15,7 +15,7 @@
 from fastapi import FastAPI
 
 from endpoints.apis.default_api import router as DefaultApiRouter
-from realization import newsletter
+from implementation import newsletter
 
 app = FastAPI(
     title="news-sender",
