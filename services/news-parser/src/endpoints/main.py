@@ -15,11 +15,16 @@
 from fastapi import FastAPI
 
 from endpoints.apis.default_api import router as DefaultApiRouter
+from implementation.main import run_parser
 
 app = FastAPI(
     title="news-parser",
     description="Парсер новостей из тг каналов",
     version="1.0.0",
 )
+
+@app.on_event("startup")
+async def create_task():
+    await run_parser()
 
 app.include_router(DefaultApiRouter)

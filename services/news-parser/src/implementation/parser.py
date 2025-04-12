@@ -2,9 +2,10 @@ import os, json, asyncio
 from datetime import datetime, timedelta, timezone
 from telethon import TelegramClient, errors
 
+
 # Получаем API-ключи из переменных окружения
-api_id = int(os.getenv('TG_API_ID'))
-api_hash = os.getenv('TG_API_HASH')
+api_id = int(os.getenv('TG_API_ID', 20673875))
+api_hash = os.getenv('TG_API_HASH', "1e923d38dca961ed878ca85b0c03abdb")
 print(f"App started with API ID: {api_id}")
 
 # Инициализация TelegramClient
@@ -20,6 +21,20 @@ limit_per_request = int(os.getenv('LIMIT_POSTS_PER_ONE_REQUEST', 20))
 # Создаем (очищаем) файл логов
 with open(log_filename, 'w', encoding='utf-8'):
     pass
+
+client = TelegramClient('session', api_id, api_hash)
+async def init_client():
+    await client.start()
+
+async def safe_get_messages(chan_id, limit):
+    try:
+        messages = await client.get_messages(chan_id, limit=limit)
+        return messages
+    except Exception as e:
+        print(f"Ошибка подключения: {e}. Переподключаемся...")
+        await client.disconnect()
+        await client.connect()
+        return await safe_get_messages(chan_id, limit)
 
 
 def convert_to_local_time(dt):
@@ -62,13 +77,16 @@ async def fetch_news_since(channels_data, limit=limit_per_request):
              { channel_id: { "channel_name": ..., "news": [новости], "last_detected_id": новый_id }, ... }
              Каждая новость – словарь с ключами: msg_id, msg, time.
     """
+
+    if not client.is_connected():
+        await client.connect()
     result = {}
     for chan_id_str, info in channels_data.items():
         chan_id = int(chan_id_str)
         channel_name = info.get("channel_name", "Неизвестно")
         last_detected = info.get("last_detected_id", 0)
         # Получаем сообщения
-        messages = await client.get_messages(chan_id, limit=limit)
+        messages = await safe_get_messages(chan_id, limit=limit)
         for msg in messages:
             msg.date = convert_to_local_time(msg.date)
         # Фильтруем только новые сообщения
@@ -103,6 +121,7 @@ async def single_call(channels_data, retries=3, timeout=10):
                "retries": количество попыток
              }
     """
+    await init_client()
     start_time = datetime.utcnow().replace(tzinfo=timezone.utc)
     for attempt in range(retries):
         try:
