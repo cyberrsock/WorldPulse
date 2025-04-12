@@ -18,9 +18,9 @@ class UsersService:
     def get_user(self, user_id: int) -> dict | None:
         return self.__users_repository.get_user(user_id)
 
-    def insert_user(self, user_id: int):
+    def insert_user(self, user_id: int, chat_id: int):
         self.__users_repository.insert_user(
-            user_id, {"schedule": EMPTY_SCHEDULE, "categories": [], "sources": []}
+            user_id, chat_id, {"schedule": EMPTY_SCHEDULE, "categories": [], "sources": []}
         )
 
     def get_user_settings(self, user_id: int) -> dict | None:

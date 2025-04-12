@@ -78,8 +78,9 @@ class WPTelegramBot:
 
     async def __start(self, update: Update, context: CallbackContext) -> None:
         user_id = update.message.from_user.id
+        chat_id = update.effective_chat.id
         if self.__users_service.get_user(user_id) is None:
-            self.__users_service.insert_user(user_id)
+            self.__users_service.insert_user(user_id, chat_id)
 
         with open(get_filename("greeting.txt")) as f:
             await update.message.reply_text(f.read())
@@ -127,9 +128,14 @@ class WPTelegramBot:
             if param == "cat":
                 category_index, is_user_category = value.split(" ")
                 category = all_categories[int(category_index)]
-                matched_user_category = next(
-                    filter(lambda x: x["_id"] == category["_id"], user_categories)
-                )
+
+                try:
+                    matched_user_category = next(
+                        filter(lambda x: x["_id"] == category["_id"], user_categories)
+                    )
+                except Exception:
+                    matched_user_category = None
+
                 if matched_user_category is not None:
                     await bu.show_category_setup_menu(
                         update,

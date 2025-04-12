@@ -17,8 +17,39 @@ paths:
                 $ref: '#/components/schemas/getGreeting_200_response'
           description: Successful response
       summary: Returns a greeting and the current time
+  /telegram-bot/internal/send:
+    post:
+      operationId: sendMessage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/sendMessage_request'
+        required: true
+      responses:
+        "204":
+          description: Ok
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+      summary: Send message to the user
 components:
   schemas:
+    sendMessage_request:
+      properties:
+        chat_id:
+          title: chat_id
+          type: integer
+        message_text:
+          minLength: 1
+          title: message_text
+          type: string
+      required:
+      - chat_id
+      - message_text
+      title: sendMessage_request
+      type: object
     getGreeting_200_response_tg_bot_thing:
       example:
         test_prop: test_prop
