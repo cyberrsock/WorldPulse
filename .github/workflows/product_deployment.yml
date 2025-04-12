@@ -20,7 +20,7 @@ jobs:
           echo "mongoPassword: ${{ secrets.MONGO_PASSWORD }}" >> .helm/values.yaml
           echo "tgToken: ${{ secrets.TG_TOKEN }}" >> .helm/values.yaml
           echo "tgApiHash: ${{ secrets.TG_API_HASH }}" >> .helm/values.yaml
-          echo "tgApiId: ${{ secrets.TG_API_ID }}" >> .helm/values.yaml
+          echo "tgApiId: \"${{ secrets.TG_API_ID }}\"" >> .helm/values.yaml
 
       - name: Converge
         uses: werf/actions/converge@v1.2
