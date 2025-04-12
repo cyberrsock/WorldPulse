@@ -13,31 +13,31 @@ class MongoDBManager:
             rs="rs01",
             auth_src="worldpulse",
         )
-    
+
     def _get_connection(self):
         return pymongo.MongoClient(
             self._url, tls=True, tlsCAFile=".mongodb/root.crt"
         )
 
-    def add_news_entry(self, 
-                      content: str, 
-                      categories: List[int],
-                      database_name: str = "worldpulse",
-                      collection_name: str = "news") -> str:
+    def add_news_entry(self,
+                       content: str,
+                       categories: List[int],
+                       database_name: str = "worldpulse",
+                       collection_name: str = "news") -> str:
         doc = self.prepare_news_entry(content, categories)
-        
+
         with self._get_connection() as client:
             db = client[database_name]
             result = db[collection_name].insert_one(doc)
             return str(result.inserted_id)
 
     def get_all_news(self,
-                    database_name: str = "worldpulse",
-                    collection_name: str = "news") -> List[Dict]:
+                     database_name: str = "worldpulse",
+                     collection_name: str = "news") -> List[Dict]:
         with self._get_connection() as client:
             db = client[database_name]
             collection = db[collection_name]
-            
+
             return [{
                 "_id": doc["_id"],
                 "content": doc["content"],
@@ -54,14 +54,39 @@ class MongoDBManager:
 
             news_dict = {}
             for doc in collection.find():
-                msg_id = doc.get("msg_id")
+                msg_id = str(doc.get("_id"))
                 if not msg_id:
                     continue
                 news_dict[msg_id] = {
                     "channel": doc.get("channel"),
                     "content": doc.get("content"),
-                    "datetime": doc.get("datetime").isoformat() if "datetime" in doc else None
+                    "datetime": doc.get("datetime").isoformat() if "datetime" in doc else None,
+                    "categories": doc.get("categories", []),  # Добавим категории в словарь
+                    "embedding": doc.get("embedding")  # Также добавим embedding для полноты картины
                 }
 
             return news_dict
 
+    # Получаем всех пользователей из коллекции "users"
+    def get_users(self) -> List[Dict]:
+        with self._get_connection() as client:
+            db = client["worldpulse"]
+            collection = db["users"]
+            return list(collection.find())
+
+    def get_clusterized_news(self) -> List[Dict]:
+        with self._get_connection() as client:
+            db = client["worldpulse"]
+            collection = db["clusterized_news"]
+
+            return [
+                {
+                    "_id": str(doc["_id"]),
+                    "description": doc["description"],
+                    "classes": doc.get("classes", []),
+                    "news_ids": doc.get("news_ids", []),
+                    "first_time": doc["first_time"].isoformat(),
+                    "last_time": doc["last_time"].isoformat()
+                }
+                for doc in collection.find()
+            ]
