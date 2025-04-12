@@ -16,18 +16,24 @@ async def run_parser():
             time.sleep(30)
             continue
 
-        for channel_data in result['news'].values():
-            for new in channel_data['news']:
-                ml_result = requests.post('/ml-processor/new_news', json={"text": new['msg']})
-                print(ml_result.json())
-                # ml_result = {
-                #     "id": -1,  # или ObjectId существующего
-                #     "text": "Aboba123",
-                #     "embedding": "aEicASWpdad89",
-                #     "classes": ["Экономика", "Внешняя политика"]
-                # }
+        for channel_id, parsed_data in result['news'].items():
+            # Берём оригинальное название канала из channels_data
+            original_channel_name = channels_data[channel_id]['channel_name']
 
-                mongo.add_news(channel['channel_name'], new['msg_id'], new['msg'], new['time'])
+            for new in parsed_data['news']:
+                ml_result = requests.post(
+                    'http://ml-processor:8080/ml-processor/new_news',
+                    json={"text": new['msg']}
+                )
+                print(ml_result.json())
+
+                # Используем original_channel_name вместо parsed_data['channel_name']
+                mongo.add_news(
+                    channel_name=original_channel_name,
+                    msg_id=new['msg_id'],
+                    text=new['msg'],
+                    time=new['time']
+                )
 
                 cluster_payload = {
                     "id": ml_result["id"],
@@ -36,6 +42,7 @@ async def run_parser():
                     "classes": ml_result["classes"],
                     "msg_id": new["msg_id"],
                     "time": new["time"],
+                    "channel_name": original_channel_name  # Добавляем имя канала и в кластер
                 }
 
                 mongo.add_or_update_clusterized_news(cluster_payload)
