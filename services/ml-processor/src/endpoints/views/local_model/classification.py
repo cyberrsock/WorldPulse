@@ -19,7 +19,7 @@ class Classificator(nn.Module):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = ClassificatorModel().to(self.device)
         self.model.load_state_dict(
-            torch.load('endpoints/views/local_model/model_weights_v1.pth',
+            torch.load('model_weights_v1.pth',
                        map_location=self.device)
         )
         self.model.eval()

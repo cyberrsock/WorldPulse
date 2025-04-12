@@ -34,4 +34,5 @@ RUN pytest tests
 FROM python AS service
 WORKDIR /root/app/site-packages
 COPY --from=test_runner /venv /venv
+COPY /services/ml-processor/src/endpoints/views/local_model/model_weights_v1.pth model_weights_v1.pth
 ENV PATH=/venv/bin:$PATH
