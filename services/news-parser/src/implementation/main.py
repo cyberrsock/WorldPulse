@@ -1,5 +1,5 @@
-from realization.parser import *
-from realization.MongoDBManager import MongoDBManager
+from implementation.parser import *
+from implementation.MongoDBManager import MongoDBManager
 
 import time, requests
 

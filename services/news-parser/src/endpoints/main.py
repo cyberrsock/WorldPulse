@@ -15,7 +15,7 @@
 from fastapi import FastAPI
 
 from endpoints.apis.default_api import router as DefaultApiRouter
-from realization.main import run_parser
+from implementation.main import run_parser
 
 app = FastAPI(
     title="news-parser",

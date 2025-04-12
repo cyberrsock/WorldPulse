@@ -11,7 +11,7 @@ class MongoDBManager:
     def __init__(self):
         self._url = "mongodb://{user}:{pw}@{hosts}/?replicaSet={rs}&authSource={auth_src}".format(
             user=quote("wpdev"),
-            pw=quote(os.getenv("MONGO_PASSWORD", "ppdev228")),
+            pw=quote(os.getenv("MONGO_PASSWORD", "wpdev228")),
             hosts=",".join([os.getenv("MONGO_HOST", "rc1d-s7mo4oxhak8b2i3u.mdb.yandexcloud.net:27018")]),
             rs="rs01",
             auth_src="worldpulse",
