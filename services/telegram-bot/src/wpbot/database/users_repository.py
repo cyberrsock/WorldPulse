@@ -13,8 +13,10 @@ class UsersRepository:
     def get_user(self, user_id: int) -> dict | None:
         return self.__db.users.find_one({"_id": user_id})
 
-    def insert_user(self, user_id: int, user_settings: dict):
-        self.__db.users.insert_one(document={"_id": user_id, "settings": user_settings})
+    def insert_user(self, user_id: int, chat_id: int, user_settings: dict):
+        self.__db.users.insert_one(document={
+            "_id": user_id, "chat_id": chat_id, "settings": user_settings
+        })
 
     def update_user_schedule(self, user_id: int, user_schedule: dict):
         self.__db.users.update_one(
