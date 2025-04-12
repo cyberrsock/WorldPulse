@@ -2,7 +2,9 @@
 
 from typing import ClassVar, Dict, List, Tuple  # noqa: F401
 
+from typing import Any
 from endpoints.models.get_greeting200_response import GetGreeting200Response
+from endpoints.models.send_message_request import SendMessageRequest
 
 
 class BaseDefaultApi:
@@ -14,4 +16,11 @@ class BaseDefaultApi:
     async def get_greeting(
         self,
     ) -> GetGreeting200Response:
+        ...
+
+
+    async def send_message(
+        self,
+        send_message_request: SendMessageRequest,
+    ) -> None:
         ...

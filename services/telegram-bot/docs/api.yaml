@@ -28,3 +28,30 @@ paths:
                     properties:
                       test_prop:
                         type: string
+
+  /telegram-bot/internal/send:
+    post:
+      summary: Send message to the user
+      operationId: sendMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - chat_id
+                - message_text
+              properties:
+                chat_id:
+                  type: integer
+                message_text:
+                  type: string
+                  minLength: 1
+      responses:
+        '204':
+          description: Ok
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found

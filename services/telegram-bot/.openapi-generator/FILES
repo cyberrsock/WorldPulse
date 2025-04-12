@@ -14,5 +14,6 @@ src/endpoints/models/__init__.py
 src/endpoints/models/extra_models.py
 src/endpoints/models/get_greeting200_response.py
 src/endpoints/models/get_greeting200_response_tg_bot_thing.py
+src/endpoints/models/send_message_request.py
 src/endpoints/security_api.py
 tests/conftest.py
