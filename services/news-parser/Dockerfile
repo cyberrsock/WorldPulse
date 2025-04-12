@@ -35,6 +35,6 @@ FROM python AS service
 WORKDIR /root/app/site-packages
 COPY --from=test_runner /tmp/.mongodb /root/app/site-packages/.mongodb
 COPY --from=test_runner /venv /venv
-COPY src/realization/tg_channels.json tg_channels.json
-COPY src/realization/session.session session.session
+COPY src/implementation/tg_channels.json tg_channels.json
+COPY src/implementation/session.session session.session
 ENV PATH=/venv/bin:$PATH

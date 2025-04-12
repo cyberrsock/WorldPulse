@@ -26,6 +26,33 @@ client = TelegramClient('session', api_id, api_hash)
 async def init_client():
     await client.start()
 
+
+async def update_last_detected_to_previous_day(channels_data, days_ago=1):
+    """Обновляет last_detected_id на минимальный ID за указанное количество дней назад"""
+    target_date = datetime.now(timezone.utc) - timedelta(days=days_ago)
+    date_start = datetime(target_date.year, target_date.month, target_date.day, 0, 0, 0, tzinfo=timezone.utc)
+    date_end = date_start + timedelta(days=1)
+
+    for chan_id_str in channels_data:
+        chan_id = int(chan_id_str)
+        try:
+            messages = await client.get_messages(
+                chan_id,
+                limit=100,
+                offset_date=date_end,
+                max_date=date_end,
+                min_date=date_start
+            )
+
+            if messages:
+                min_id = min(msg.id for msg in messages)
+                channels_data[chan_id_str]["last_detected_id"] = min_id
+                print(
+                    f"Обновлен last_detected_id для {channels_data[chan_id_str]['channel_name']} за {days_ago} д. назад: {min_id}")
+        except Exception as e:
+            print(f"Ошибка при обновлении last_detected_id: {e}")
+
+
 async def safe_get_messages(chan_id, limit):
     try:
         messages = await client.get_messages(chan_id, limit=limit)
@@ -153,6 +180,11 @@ async def periodic_news_fetcher(interval_minutes=1):
     сохраняет изменения и выводит на экран последний msg_id для каждого канала.
     """
     channels_data = load_channels()
+
+    # Обновляем last_detected_id на вчерашние значения при старте
+    await update_last_detected_to_previous_day(channels_data, days_ago=2)
+    save_channels(channels_data)  # Сохраняем обновленные данные
+
     while True:
         print("Запуск сбора новостей...")
         result = await single_call(channels_data)
