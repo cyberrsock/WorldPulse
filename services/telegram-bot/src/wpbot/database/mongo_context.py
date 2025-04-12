@@ -1,4 +1,3 @@
-import os
 from urllib.parse import quote_plus as quote
 
 import pymongo
@@ -6,6 +5,7 @@ import pymongo
 
 class MongoDBConnectionManager:
     def __init__(self, mongo_password, mongo_host):
+        import logging as log
         self.__url = "mongodb://{user}:{pw}@{hosts}/?replicaSet={rs}&authSource={auth_src}".format(
             user=quote("wpdev"),
             pw=quote(mongo_password),
@@ -13,6 +13,7 @@ class MongoDBConnectionManager:
             rs="rs01",
             auth_src="worldpulse",
         )
+        log.info(self.__url)
         self.__connection = pymongo.MongoClient(
             self.__url, tls=True, tlsCAFile=f".mongodb/root.crt"
         )

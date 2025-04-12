@@ -4,7 +4,7 @@ from telethon import TelegramClient, errors
 
 
 # Получаем API-ключи из переменных окружения
-api_id = int(os.getenv('TG_API_ID', 20673875))
+api_id = int(float(os.getenv('TG_API_ID', 20673875)))
 api_hash = os.getenv('TG_API_HASH', "1e923d38dca961ed878ca85b0c03abdb")
 print(f"App started with API ID: {api_id}")
 
