@@ -1,0 +1,42 @@
+{
+  "-1001099860397": {
+    "channel_name": "РБК. Новости. Главное",
+    "last_sent_id": 0,
+    "last_detected_id": 114911
+  },
+  "-1001136626166": {
+    "channel_name": "Банкста",
+    "last_sent_id": 0,
+    "last_detected_id": 68074
+  },
+  "-1001319248631": {
+    "channel_name": "Бэкдор",
+    "last_sent_id": 0,
+    "last_detected_id": 18092
+  },
+  "-1002416194304": {
+    "channel_name": "Топор. Экономика.",
+    "last_sent_id": 0,
+    "last_detected_id": 3056
+  },
+  "-1001043793945": {
+    "channel_name": "Код Дурова",
+    "last_sent_id": 0,
+    "last_detected_id": 21956
+  },
+  "-1001394050290": {
+    "channel_name": "Раньше всех. Ну почти.",
+    "last_sent_id": 0,
+    "last_detected_id": 203482
+  },
+  "-1001160069402": {
+    "channel_name": "Чёрный Треугольник",
+    "last_sent_id": 0,
+    "last_detected_id": 6478
+  },
+  "-1001734046484": {
+    "channel_name": "Базар",
+    "last_sent_id": 0,
+    "last_detected_id": 32135
+  }
+}
