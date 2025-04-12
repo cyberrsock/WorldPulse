@@ -3,6 +3,7 @@ import asyncio
 from datetime import datetime as dt
 import telegram_bot_client
 from implementation.MongoContext import MongoDBManager
+import logging
 
 def make_client(lib, host):
     api_client = lib.ApiClient(lib.Configuration(host=host))
@@ -134,6 +135,7 @@ def process_mailing():
 # Мега базированный способ ожидать по 5 минут
 async def run():
     print("Started news sender")
+    logging.info("Started news sender")
     while True:
         current_min = dt.now().minute
         if current_min % 5 == 0:
