@@ -19,7 +19,7 @@ if [ "$1" = "test" ]; then
 fi
 
 if [ "$1" = "gen" ]; then
-  openapi-generator-cli generate \
+  openapi-generator-cli.sh generate \
   -i "$service_path/docs/api.yaml"\
   -g python-fastapi\
   --minimal-update\
@@ -42,7 +42,7 @@ if [ "$1" = "gen" ]; then
         echo "Генерация клиента для: $item_name_norm"
         arg_1="$item/docs/api.yaml"
         arg_2="$codegen_dir/client_$item_name_norm"
-        openapi-generator-cli generate -i "$arg_1" -g python -o "$arg_2"_tmp --package-name "$item_name_norm"_client
+        openapi-generator-cli.sh generate -i "$arg_1" -g python -o "$arg_2"_tmp --package-name "$item_name_norm"_client
         rm -r "$service_path"/src/"$item_name_norm"_client
         mv "$arg_2"_tmp/"$item_name_norm"_client "$service_path"/src/"$item_name_norm"_client
         mv "$arg_2"_tmp/requirements.txt "$service_path"/src/"$item_name_norm"_client/requirements.txt
