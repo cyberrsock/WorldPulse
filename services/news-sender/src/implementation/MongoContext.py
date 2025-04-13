@@ -112,3 +112,13 @@ class MongoDBManager:
                 for cat in collection.find()
             }
 
+    def get_sources(self) -> Dict[str, str]:
+        """Получаем все источники в формате {source_id: source_name}"""
+        with self._get_connection() as client:
+            db = client["worldpulse"]
+            collection = db["sources"]  # Предполагаем, что коллекция называется "sources"
+            return {
+                str(src["_id"]): src["name"]
+                for src in collection.find()
+            }
+
