@@ -78,16 +78,76 @@ class MongoDBManager:
             db = client["worldpulse"]
             collection = db["clusterized_news"]
 
+            # Агрегационный запрос
+            pipeline = [
+                {
+                    "$lookup": {
+                        "from": "news",
+                        "localField": "news_ids",
+                        "foreignField": "_id",
+                        "as": "news_items"
+                    }
+                },
+                {
+                    "$unwind": "$news_items"
+                },
+                {
+                    "$lookup": {
+                        "from": "sources",
+                        "localField": "news_items.channel",
+                        "foreignField": "name",
+                        "as": "source_info"
+                    }
+                },
+                {
+                    "$unwind": "$source_info"
+                },
+                {
+                    "$group": {
+                        "_id": "$_id",
+                        "description": {
+                            "$first": "$description"
+                        },
+                        "classes": {
+                            "$first": "$classes"
+                        },
+                        "first_time": {
+                            "$first": "$first_time"
+                        },
+                        "last_time": {
+                            "$first": "$last_time"
+                        },
+                        "channels": {
+                            "$push": {
+                                "msg_id": "$news_items._id",  # msg_id
+                                "tg_id": "$source_info.attrs.tg_id",  # tg_id
+                                "channel_name": "$news_items.channel"  # Название канала
+                            }
+                        }
+                    }
+                }
+            ]
+
+            results = collection.aggregate(pipeline)
+
+            # Преобразуем результат в нужный формат
             return [
                 {
                     "_id": str(doc["_id"]),
                     "description": doc["description"],
                     "classes": doc.get("classes", []),
-                    "news_ids": doc.get("news_ids", []),
                     "first_time": doc["first_time"].isoformat(),
-                    "last_time": doc["last_time"].isoformat()
+                    "last_time": doc["last_time"].isoformat(),
+                    "channels": [
+                        {
+                            "msg_id": channel["msg_id"],
+                            "tg_id": channel["tg_id"],
+                            "channel_name": channel["channel_name"]
+                        }
+                        for channel in doc.get("channels", [])
+                    ]
                 }
-                for doc in collection.find()
+                for doc in results
             ]
 
     def update_user_last_sending(self, user_id, time_str):
