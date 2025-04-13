@@ -41,16 +41,15 @@ components:
         classes:
         - экономика
         - финансы
-        id: 42
+        id: 31fnf19f1mf8
         text: Поколение пепси распознало текст на банке шпротов
         embedding: "W0.12, 0.45, 0.78, ..., 0.99]"
       properties:
         id:
           description: Уникальный идентификатор новости в БД
-          example: 42
-          format: int64
+          example: 31fnf19f1mf8
           title: id
-          type: integer
+          type: string
         text:
           description: Сокращенный текст новости
           example: Поколение пепси распознало текст на банке шпротов

@@ -1,8 +1,14 @@
 from implementation.parser import *
 from implementation.MongoDBManager import MongoDBManager
+import ml_processor_client
 
 import time, requests
 
+def make_client(lib, host):
+    api_client = lib.ApiClient(lib.Configuration(host=host))
+    return lib.DefaultApi(api_client)
+
+ml_client = make_client(ml_processor_client, 'http://ml-processor:8080')
 
 async def run_parser():
     while True:
@@ -21,16 +27,8 @@ async def run_parser():
             original_channel_name = channels_data.get(channel_id, {}).get('channel_name')
 
             for new in parsed_data.get('news', []):
-                ml_response = requests.post(
-                    'http://ml-processor:8080/ml-processor/new_news',
-                    json={"text": new['msg']}
-                )
-                print(ml_response)
-                if ml_response.status_code != 200:
-                    print(f"ML Error: {ml_response.text}")
-                    continue
                 try:
-                    ml_data = ml_response.json()
+                    ml_data = ml_client.ml_processor_new_news_post(ml_processor_client.MlProcessorNewNewsPostRequest(text=new['msg'])).to_json()
                 except Exception:
                     print("Invalid JSON response from ML service")
                     continue

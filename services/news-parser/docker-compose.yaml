@@ -1,11 +1,9 @@
+version: '3.6'
 services:
   service:
     build:
       context: .
       target: service
-    environment:
-      TG_API_ID: 20673875
-      TG_API_HASH: "1e923d38dca961ed878ca85b0c03abdb"
     ports:
       - "8080:8080"
     command: uvicorn endpoints.main:app --host 0.0.0.0 --port 8080

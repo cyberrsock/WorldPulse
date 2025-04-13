@@ -23,5 +23,5 @@ class DefaultApiImpl(BaseDefaultApi):
             brief_text = self.model.summarize([nearest_cluster["content"], brief_text], brief=True)
             embedding = self.model.get_embedding(brief_text)
         categories = self.classificator.predict(embedding)
-        id = nearest_cluster["_id"] if nearest_cluster else -1
+        id = str(nearest_cluster["_id"]) if nearest_cluster else ""
         return MlProcessorNewNewsPost200Response(id=id, text=brief_text, embedding=str(Binarizer.encode(embedding)), classes=categories)
