@@ -11,8 +11,8 @@ class MongoDBManager:
     def __init__(self):
         self._url = "mongodb://{user}:{pw}@{hosts}/?replicaSet={rs}&authSource={auth_src}".format(
             user=quote("wpdev"),
-            pw=quote(os.getenv("MONGO_PASSWORD", "wpdev228")),
-            hosts=",".join([os.getenv("MONGO_HOST", "rc1d-s7mo4oxhak8b2i3u.mdb.yandexcloud.net:27018")]),
+            pw=quote(os.getenv("MONGO_PASSWORD")),
+            hosts=",".join([os.getenv("MONGO_HOST")]),
             rs="rs01",
             auth_src="worldpulse",
         )
@@ -49,9 +49,21 @@ class MongoDBManager:
                     "first_time": datetime.fromisoformat(cluster["time"]),
                     "last_time": datetime.fromisoformat(cluster["time"]),
                 }
+                print(f"Try to save in clustrized_news {doc}")
                 collection.insert_one(doc)
             else:
                 # обновляем существующий кластер
+
+                print(f'Try to update in clustrized_news: ' + """{"_id": cluster_id},
+                    {
+                        "$set": {
+                            "description": cluster["text"],
+                            "embedding": Binary(cluster["embedding"].encode("utf-8")),
+                            "classes": cluster["classes"],
+                            "last_time": datetime.fromisoformat(cluster["time"]),
+                        },
+                        "$addToSet": {"news_ids": cluster["msg_id"]},
+                    }""")
                 collection.update_one(
                     {"_id": cluster_id},
                     {
