@@ -115,7 +115,7 @@ def process_mailing():
             msg = ""
             for cluster in clusterized_news:
                 cluster_last_time = dt.fromisoformat(cluster["last_time"]).astimezone(tz)
-                print(f"cluster_last_time: {cluster_last_time}, last_sending: {last_sending}, categories: {categories}, new_categories: {cluster.get('classes', [])}, is_category_news_accept: {any(cat["name"] in cluster.get('classes', []) for cat in categories)}")
+                print(f"cluster_last_time: {cluster_last_time}, last_sending: {last_sending}, categories: {categories}, new_categories: {cluster.get('classes', [])}, is_category_news_accept: {any(cat['name'] in cluster.get('classes', []) for cat in categories)}")
                 if cluster_last_time < last_sending:
                     continue
                 if not any(cat["name"] in cluster.get('classes', []) for cat in categories):
