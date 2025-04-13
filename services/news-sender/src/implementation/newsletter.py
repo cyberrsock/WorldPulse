@@ -60,6 +60,7 @@ def process_mailing():
     all_categories = mongo_manager.get_categories()
     all_sources = mongo_manager.get_sources()
     print(f"All sources: {all_sources}")
+    print(f"All news data: {news_data}")
 
     day_mapping = {0: "Пн", 1: "Вт", 2: "Ср", 3: "Чт", 4: "Пт", 5: "Сб", 6: "Вс"}
     today_key = day_mapping[now.weekday()]

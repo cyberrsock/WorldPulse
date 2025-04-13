@@ -54,15 +54,14 @@ class MongoDBManager:
 
             news_dict = {}
             for doc in collection.find():
-                msg_id = str(doc.get("_id"))
+                msg_id = str(doc.get("msg_id"))
                 if not msg_id:
                     continue
                 news_dict[msg_id] = {
+                    "_id": doc.get("_id"),
                     "channel": doc.get("channel"),
                     "content": doc.get("content"),
                     "datetime": doc.get("datetime").isoformat() if "datetime" in doc else None,
-                    "categories": doc.get("categories", []),  # Добавим категории в словарь
-                    "embedding": doc.get("embedding")  # Также добавим embedding для полноты картины
                 }
 
             return news_dict
