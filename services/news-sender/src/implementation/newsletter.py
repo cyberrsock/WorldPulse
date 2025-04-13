@@ -102,7 +102,8 @@ def process_mailing():
 
         next_schedule = min(schedule_times)
         print(f"Нужно ли отправлять сообщение пользователю: {next_schedule} <= {now} ({last_sending}?")
-        if next_schedule <= now:
+        # Или у пользователя первое сообщение
+        if next_schedule <= now or not last_sending_str:
             print(f"Пользователь {user_id}: Рассылаем. Время: {next_schedule.strftime('%H:%M:%S')}.")
             msg = ""
             for cluster in clusterized_news:
