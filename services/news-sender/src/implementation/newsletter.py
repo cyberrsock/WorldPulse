@@ -108,6 +108,7 @@ def process_mailing():
             msg = ""
             for cluster in clusterized_news:
                 cluster_last_time = dt.fromisoformat(cluster["last_time"]).astimezone(tz)
+                print(f"{cluster_last_time}, {last_sending}, {any(cat in categories for cat in cluster.get('classes', []))}")
                 if cluster_last_time < last_sending:
                     continue
                 if not any(cat in categories for cat in cluster.get('classes', [])):
