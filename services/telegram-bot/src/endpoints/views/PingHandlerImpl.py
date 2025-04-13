@@ -21,7 +21,7 @@ class DefaultApiImpl(BaseDefaultApi):
         payload = {
             'chat_id': send_message_request.chat_id,
             'text': send_message_request.message_text,
-            'parse_mode': 'MarkdownV2'
+            'parse_mode': 'HTML'
         }
 
         try:

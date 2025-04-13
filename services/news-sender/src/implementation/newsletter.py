@@ -192,7 +192,7 @@ def process_mailing():
                 ]
 
                 # Форматируем каналы в кавычки
-                formatted_channels = [f"'[{ch['channel_name']}](https://t.me/c/{str(ch['tg_id'])[4:]}/{ch['msg_id']})'" for ch in cluster['channels']]
+                formatted_channels = [f"'<b><a href=https://t.me/c/{str(ch['tg_id'])[4:]}/{ch['msg_id']}>{ch['channel_name']}</a></b>'" for ch in cluster['channels']]
 
                 # Собираем элементы новости
                 news_item = f"{id}. {cluster['description']}\n" + \

@@ -119,7 +119,7 @@ class MongoDBManager:
                         },
                         "channels": {
                             "$push": {
-                                "msg_id": "$news_items._id",  # msg_id
+                                "msg_id": "$news_items.msg_id",  # msg_id
                                 "tg_id": "$source_info.attrs.tg_id",  # tg_id
                                 "channel_name": "$news_items.channel"  # Название канала
                             }
