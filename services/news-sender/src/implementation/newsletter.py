@@ -81,7 +81,7 @@ def process_mailing():
             if cat_id in all_categories
         ]
         categories = [cat['name'] for cat in raw_categories]
-        user_source_ids = settings.get("sources", [])
+        user_source_ids = list(map(str, settings.get("sources", [])))
         print(f"User source ids: {user_source_ids}")
         sources = [
             all_sources[src_id]
@@ -133,6 +133,7 @@ def process_mailing():
                 print(f"Cluster ids: {cluster['news_ids']}")
                 for msg_id in cluster["news_ids"]:
                     news = news_data.get(str(msg_id))
+                    print(f"New: {news}")
                     if news:
                         channels.add(news["channel"])
                 print(f"sources: {sources}, channels: {channels}, check_channels: {any(ch in sources for ch in channels):}")
