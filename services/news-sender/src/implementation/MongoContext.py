@@ -54,11 +54,11 @@ class MongoDBManager:
 
             news_dict = {}
             for doc in collection.find():
-                msg_id = str(doc.get("msg_id"))
-                if not msg_id:
+                n_id = str(doc.get("_id"))
+                if not n_id:
                     continue
-                news_dict[msg_id] = {
-                    "_id": doc.get("_id"),
+                news_dict[n_id] = {
+                    "msg_id": doc.get("msg_id"),
                     "channel": doc.get("channel"),
                     "content": doc.get("content"),
                     "datetime": doc.get("datetime").isoformat() if "datetime" in doc else None,
