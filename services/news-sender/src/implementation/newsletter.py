@@ -81,9 +81,9 @@ def process_mailing():
                 last_sending = dt.fromisoformat(last_sending_str).astimezone(tz)
             except Exception as e:
                 print(f"Пользователь {user_id}: Ошибка парсинга last_sending: {e}. Используется текущее время.")
-                last_sending = now - timedelta(minutes=2)
+                last_sending = dt.combine(now.date(), dt.min.time()).replace(tzinfo=tz)
         else:
-            last_sending = now - timedelta(minutes=2)
+            last_sending = dt.combine(now.date(), dt.min.time()).replace(tzinfo=tz)
 
         schedule_times = []
         for time_str in day_schedule:
@@ -108,7 +108,7 @@ def process_mailing():
             msg = ""
             for cluster in clusterized_news:
                 cluster_last_time = dt.fromisoformat(cluster["last_time"]).astimezone(tz)
-                print(f"{cluster_last_time}, {last_sending}, {any(cat in categories for cat in cluster.get('classes', []))}")
+                print(f"cluster_last_time: {cluster_last_time}, last_sending: {last_sending}, categories: {categories}, new_categories: {cluster.get('classes', [])}, is_category_news_accept: {any(cat in categories for cat in cluster.get('classes', []))}")
                 if cluster_last_time < last_sending:
                     continue
                 if not any(cat in categories for cat in cluster.get('classes', [])):
