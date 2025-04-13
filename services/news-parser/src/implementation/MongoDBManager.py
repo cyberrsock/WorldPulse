@@ -55,9 +55,9 @@ class MongoDBManager:
             else:
                 # обновляем существующий кластер
 
-                print(f'Try to update in clustrized_news: ' + f"{cluster_id}, {cluster['text']}, {cluster['classes']}, {datetime.fromisoformat(cluster['time'])}, {cluster["msg_id"]}")
+                print(f'Try to update in clustrized_news: ' + f"{cluster_id}, {cluster['text']}, {cluster['classes']}, {datetime.fromisoformat(cluster['time'])}, {cluster['msg_id']}")
                 collection.update_one(
-                    {"_id": str(cluster_id)},
+                    {"_id": ObjectId(cluster_id)},
                     {
                         "$set": {
                             "description": cluster["text"],
