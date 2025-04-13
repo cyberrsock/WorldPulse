@@ -54,6 +54,7 @@ def send_message(user_id: int, message: str):
 
     # Отправка всех частей
     for part in parts:
+        print("Part:", part)
         tg_client.send_message(
             telegram_bot_client.SendMessageRequest(
                 chat_id=user_id,
