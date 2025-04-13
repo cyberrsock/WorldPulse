@@ -81,9 +81,9 @@ def process_mailing():
                 last_sending = dt.fromisoformat(last_sending_str).astimezone(tz)
             except Exception as e:
                 print(f"Пользователь {user_id}: Ошибка парсинга last_sending: {e}. Используется текущее время.")
-                last_sending = now
+                last_sending = now - timedelta(minutes=2)
         else:
-            last_sending = now
+            last_sending = now - timedelta(minutes=2)
 
         schedule_times = []
         for time_str in day_schedule:
@@ -102,7 +102,8 @@ def process_mailing():
 
         next_schedule = min(schedule_times)
         print(f"Нужно ли отправлять сообщение пользователю: {next_schedule} <= {now} ({last_sending}?")
-        if next_schedule <= now:
+        # Или у пользователя первое сообщение
+        if next_schedule <= now or not last_sending_str:
             print(f"Пользователь {user_id}: Рассылаем. Время: {next_schedule.strftime('%H:%M:%S')}.")
             msg = ""
             for cluster in clusterized_news:
@@ -128,6 +129,7 @@ def process_mailing():
                 mongo_manager.update_user_last_sending(user_id, now.isoformat())
             else:
                 print(f"Пользователь {user_id}: Нет подходящих новостей.")
+                mongo_manager.update_user_last_sending(user_id, now.isoformat())
         else:
             print(f"Пользователь {user_id}: Следующая рассылка в {next_schedule.strftime('%H:%M:%S')}.")
 
