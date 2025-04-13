@@ -59,6 +59,7 @@ def process_mailing():
     users = mongo_manager.get_users()
     all_categories = mongo_manager.get_categories()
     all_sources = mongo_manager.get_sources()
+    print(f"All sources: {all_sources}")
 
     day_mapping = {0: "Пн", 1: "Вт", 2: "Ср", 3: "Чт", 4: "Пт", 5: "Сб", 6: "Вс"}
     today_key = day_mapping[now.weekday()]
@@ -81,6 +82,7 @@ def process_mailing():
         ]
         categories = [cat['name'] for cat in raw_categories]
         user_source_ids = settings.get("sources", [])
+        print(f"User source ids: {user_source_ids}")
         sources = [
             all_sources[src_id]
             for src_id in user_source_ids
@@ -121,13 +123,14 @@ def process_mailing():
             msg = ""
             for cluster in clusterized_news:
                 cluster_last_time = dt.fromisoformat(cluster["last_time"]).astimezone(tz)
-                print(f"cluster_last_time: {cluster_last_time}, last_sending: {last_sending}, categories: {categories}, check_categories: {any(category_name in cluster.get('classes', []) for category_name in categories)}")
+                print(f"cluster_last_time: {cluster_last_time}, last_sending: {last_sending}, categories: {cluster.get('classes', [])}, check_categories: {any(category_name in cluster.get('classes', []) for category_name in categories)}")
                 if cluster_last_time < last_sending:
                     continue
                 if not any(category_name in cluster.get('classes', []) for category_name in categories):
                     continue
 
                 channels = set()
+                print(f"Cluster ids: {cluster['news_ids']}")
                 for msg_id in cluster["news_ids"]:
                     news = news_data.get(str(msg_id))
                     if news:
@@ -137,6 +140,7 @@ def process_mailing():
                     continue
 
                 msg += f"{cluster['description']} (Каналы: {', '.join(channels)})\n"
+                print(f"Сообщение для пользователя {user_id} было обновлено, теперь его длина {len(msg)}")
 
             if msg:
                 send_message(user_id, msg)
