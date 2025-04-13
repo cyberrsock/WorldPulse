@@ -39,7 +39,7 @@ class MongoDBManager:
             collection = db["clusterized_news"]
 
             cluster_id = cluster["id"]
-            if str(cluster_id) == "-1":
+            if str(cluster_id) == "":
                 # создаём новый кластер
                 doc = {
                     "description": cluster["text"],
@@ -56,7 +56,7 @@ class MongoDBManager:
 
                 print(f'Try to update in clustrized_news: ' + f"{cluster_id}, {cluster['text']}, {cluster['classes']}, {datetime.fromisoformat(cluster['time'])}, {cluster["msg_id"]}")
                 collection.update_one(
-                    {"_id": cluster_id},
+                    {"_id": str(cluster_id)},
                     {
                         "$set": {
                             "description": cluster["text"],
