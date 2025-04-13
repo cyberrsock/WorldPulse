@@ -24,6 +24,6 @@ class DefaultApiImpl(BaseDefaultApi):
             'parse_mode': 'HTML'
         }
 
-        response = requests.post(url=f'https://api.telegram.org/bot{token}/sendMessage', data=payload)
-        if not response.json['ok']:
-            raise RuntimeError(response.json['description'])
+        response = requests.post(url=f'https://api.telegram.org/bot{token}/sendMessage', data=payload).json()
+        if not response['ok']:
+            raise RuntimeError(response['description'])
