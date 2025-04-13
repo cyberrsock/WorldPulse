@@ -92,7 +92,9 @@ class MongoDBManager:
             ]
 
     def update_user_last_sending(self, user_id, time_str):
-        self.users_collection.update_one(
-            {"_id": user_id},
+        with self._get_connection() as client:
+            db = client["worldpulse"]
+            db.users.update_one(
+                {"_id": user_id},
             {"$set": {"settings.last_sending": time_str}}
-        )
+            )
