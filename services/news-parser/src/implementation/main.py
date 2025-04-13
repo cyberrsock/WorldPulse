@@ -34,7 +34,7 @@ async def run_parser():
                 except Exception:
                     print("Invalid JSON response from ML service")
                     continue
-                print(ml_data)
+                print(ml_data["id"], ml_data["text"], ml_data["classes"])
                 ml_data["id"] = str(ml_data["id"])
 
                 # Используем original_channel_name вместо parsed_data['channel_name']
