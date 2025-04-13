@@ -58,6 +58,7 @@ def process_mailing():
     clusterized_news = mongo_manager.get_clusterized_news()
     users = mongo_manager.get_users()
     all_categories = mongo_manager.get_categories()
+    all_sources = mongo_manager.get_sources()
 
     day_mapping = {0: "Пн", 1: "Вт", 2: "Ср", 3: "Чт", 4: "Пт", 5: "Сб", 6: "Вс"}
     today_key = day_mapping[now.weekday()]
@@ -79,7 +80,12 @@ def process_mailing():
             if cat_id in all_categories
         ]
         categories = [cat['name'] for cat in raw_categories]
-        sources = settings.get("sources", [])
+        user_source_ids = settings.get("sources", [])
+        sources = [
+            all_sources[src_id]
+            for src_id in user_source_ids
+            if src_id in all_sources
+        ]
 
         # Парсинг last_sending с учётом таймзоны
         last_sending_str = settings.get("last_sending")
@@ -115,7 +121,7 @@ def process_mailing():
             msg = ""
             for cluster in clusterized_news:
                 cluster_last_time = dt.fromisoformat(cluster["last_time"]).astimezone(tz)
-                print(f"cluster_last_time: {cluster_last_time}, last_sending: {last_sending}, categories: {categories}, new_categories: {any(category_name in cluster.get('classes', []) for category_name in categories)}")
+                print(f"cluster_last_time: {cluster_last_time}, last_sending: {last_sending}, categories: {categories}, check_categories: {any(category_name in cluster.get('classes', []) for category_name in categories)}")
                 if cluster_last_time < last_sending:
                     continue
                 if not any(category_name in cluster.get('classes', []) for category_name in categories):
@@ -126,7 +132,7 @@ def process_mailing():
                     news = news_data.get(str(msg_id))
                     if news:
                         channels.add(news["channel"])
-
+                print(f"sources: {sources}, channels: {channels}, check_channels: {any(ch in sources for ch in channels):}")
                 if not any(ch in sources for ch in channels):
                     continue
 
