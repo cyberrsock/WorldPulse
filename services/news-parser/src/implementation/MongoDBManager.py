@@ -43,7 +43,7 @@ class MongoDBManager:
                 # создаём новый кластер
                 doc = {
                     "description": cluster["text"],
-                    "embedding": Binary(cluster["embedding"].encode("utf-8")),
+                    "embedding": Binary(eval(cluster["embedding"])),
                     "classes": cluster["classes"],
                     "news_ids": [cluster["msg_id"]],
                     "first_time": datetime.fromisoformat(cluster["time"]),
@@ -60,7 +60,7 @@ class MongoDBManager:
                     {
                         "$set": {
                             "description": cluster["text"],
-                            "embedding": Binary(cluster["embedding"].encode("utf-8")),
+                            "embedding": Binary(eval(cluster["embedding"])),
                             "classes": cluster["classes"],
                             "last_time": datetime.fromisoformat(cluster["time"]),
                         },
