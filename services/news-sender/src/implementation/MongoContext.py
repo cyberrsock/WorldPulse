@@ -98,3 +98,16 @@ class MongoDBManager:
                 {"_id": user_id},
             {"$set": {"settings.last_sending": time_str}}
             )
+
+    def get_categories(self) -> Dict[str, Dict]:
+        """Получаем все категории в формате {category_id: category_data}"""
+        with self._get_connection() as client:
+            db = client["worldpulse"]
+            collection = db["categories"]
+            return {
+                str(cat["_id"]): {
+                    "name": cat["name"],
+                    "topic": cat["topic"]
+                }
+                for cat in collection.find()
+
