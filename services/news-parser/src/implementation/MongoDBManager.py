@@ -39,6 +39,7 @@ class MongoDBManager:
             collection = db["clusterized_news"]
 
             cluster_id = cluster["id"]
+
             if str(cluster_id) == "":
                 # создаём новый кластер
                 doc = {
