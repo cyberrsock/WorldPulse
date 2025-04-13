@@ -199,7 +199,7 @@ def process_mailing():
                     f"\tКатегории: {', '.join(formatted_categories)}",
                     f"\tКаналы: {', '.join(formatted_channels)}"
                 ]
-                news_items.append(item)
+                news_items.append(news_item)
                 id += 1
                 print(f"Сообщение для пользователя {user_id} было обновлено, теперь его длина {len(msg)}")
 
