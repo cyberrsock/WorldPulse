@@ -110,4 +110,5 @@ class MongoDBManager:
                     "topic": cat["topic"]
                 }
                 for cat in collection.find()
+            }
 
