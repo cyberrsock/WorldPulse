@@ -40,7 +40,6 @@ class MongoDBManager:
             
             return [{
                 "_id": doc["_id"],
-                "content": doc["content"],
-                "categories": doc.get("categories", []),
+                "content": doc["description"],
                 "embedding": doc["embedding"]
             } for doc in collection.find()]
