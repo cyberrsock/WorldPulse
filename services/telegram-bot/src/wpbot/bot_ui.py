@@ -7,6 +7,17 @@ CATEGORY_CMD_PREFIX = "cat"
 SOURCES_CMD_PREFIX = "src"
 
 
+def print_schedule_info(schedule_items: dict):
+    result = ""
+    for k, v in schedule_items:
+        if v is None:
+            continue
+        result += k + ":\n"
+        for time in v:
+            result += f"- {time}\n"
+    return result
+
+
 async def show_schedule_menu(
     update: Update, context: CallbackContext, has_days_selected: bool, schedule_items: dict
 ):
@@ -36,8 +47,10 @@ async def show_schedule_menu(
         )
 
     reply_markup = InlineKeyboardMarkup(keyboard)
+    schedule_info = print_schedule_info(schedule_items)
     await update.callback_query.edit_message_text(
-        "Выберите дни, в которые будет производиться рассылка", reply_markup=reply_markup
+        f"Текущее расписание\n{schedule_info}\nВыберите дни, в которые будет производиться рассылка",
+        reply_markup=reply_markup
     )
 
 
