@@ -28,7 +28,7 @@ async def run_parser():
 
             for new in parsed_data.get('news', []):
                 try:
-                    ml_data = ml_client.ml_processor_new_news_post(ml_processor_client.MlProcessorNewNewsPostRequest(text=new['msg'])).to_json()
+                    ml_data = ml_client.ml_processor_new_news_post(ml_processor_client.MlProcessorNewNewsPostRequest(text=new['msg'])).to_dict()
                 except Exception:
                     print("Invalid JSON response from ML service")
                     continue
