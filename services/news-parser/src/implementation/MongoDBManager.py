@@ -11,8 +11,8 @@ class MongoDBManager:
     def __init__(self):
         self._url = "mongodb://{user}:{pw}@{hosts}/?replicaSet={rs}&authSource={auth_src}".format(
             user=quote("wpdev"),
-            pw=quote(os.getenv("MONGO_PASSWORD", "wpdev228")),
-            hosts=",".join([os.getenv("MONGO_HOST", "rc1d-s7mo4oxhak8b2i3u.mdb.yandexcloud.net:27018")]),
+            pw=quote(os.getenv("MONGO_PASSWORD")),
+            hosts=",".join([os.getenv("MONGO_HOST")]),
             rs="rs01",
             auth_src="worldpulse",
         )
@@ -39,25 +39,28 @@ class MongoDBManager:
             collection = db["clusterized_news"]
 
             cluster_id = cluster["id"]
-            if cluster_id == -1:
+            if str(cluster_id) == "":
                 # создаём новый кластер
                 doc = {
                     "description": cluster["text"],
-                    "embedding": Binary(cluster["embedding"].encode("utf-8")),
+                    "embedding": Binary(eval(cluster["embedding"])),
                     "classes": cluster["classes"],
                     "news_ids": [cluster["msg_id"]],
                     "first_time": datetime.fromisoformat(cluster["time"]),
                     "last_time": datetime.fromisoformat(cluster["time"]),
                 }
+                print(f"Try to save in clustrized_news {doc}")
                 collection.insert_one(doc)
             else:
                 # обновляем существующий кластер
+
+                print(f'Try to update in clustrized_news: ' + f"{cluster_id}, {cluster['text']}, {cluster['classes']}, {datetime.fromisoformat(cluster['time'])}, {cluster["msg_id"]}")
                 collection.update_one(
-                    {"_id": cluster_id},
+                    {"_id": str(cluster_id)},
                     {
                         "$set": {
                             "description": cluster["text"],
-                            "embedding": Binary(cluster["embedding"].encode("utf-8")),
+                            "embedding": Binary(eval(cluster["embedding"])),
                             "classes": cluster["classes"],
                             "last_time": datetime.fromisoformat(cluster["time"]),
                         },
