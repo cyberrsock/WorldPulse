@@ -27,6 +27,8 @@ async def run_parser():
             original_channel_name = channels_data.get(channel_id, {}).get('channel_name')
 
             for new in parsed_data.get('news', []):
+                if new.strip() == "":
+                    continue
                 try:
                     ml_data = ml_client.ml_processor_new_news_post(ml_processor_client.MlProcessorNewNewsPostRequest(text=new['msg'])).to_dict()
                 except Exception:

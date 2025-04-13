@@ -57,6 +57,7 @@ def process_mailing():
     news_data = mongo_manager.get_news_dict()
     clusterized_news = mongo_manager.get_clusterized_news()
     users = mongo_manager.get_users()
+    all_categories = mongo_manager.get_categories()
 
     day_mapping = {0: "Пн", 1: "Вт", 2: "Ср", 3: "Чт", 4: "Пт", 5: "Сб", 6: "Вс"}
     today_key = day_mapping[now.weekday()]
@@ -71,7 +72,12 @@ def process_mailing():
             continue
         print(f"Пользователь {user_id}, расписание {day_schedule}")
 
-        categories = [cat["id"] for cat in settings.get("categories", [])]
+        user_category_ids = [str(cat["id"]) for cat in settings.get("categories", [])]
+        categories = [
+            all_categories[cat_id]
+            for cat_id in user_category_ids
+            if cat_id in all_categories
+        ]
         sources = settings.get("sources", [])
 
         # Парсинг last_sending с учётом таймзоны
@@ -108,10 +114,10 @@ def process_mailing():
             msg = ""
             for cluster in clusterized_news:
                 cluster_last_time = dt.fromisoformat(cluster["last_time"]).astimezone(tz)
-                print(f"cluster_last_time: {cluster_last_time}, last_sending: {last_sending}, categories: {categories}, new_categories: {cluster.get('classes', [])}, is_category_news_accept: {any(cat in categories for cat in cluster.get('classes', []))}")
+                print(f"cluster_last_time: {cluster_last_time}, last_sending: {last_sending}, categories: {categories}, new_categories: {cluster.get('classes', [])}, is_category_news_accept: {any(cat["name"] in cluster.get('classes', []) for cat in categories)}")
                 if cluster_last_time < last_sending:
                     continue
-                if not any(cat in categories for cat in cluster.get('classes', [])):
+                if not any(cat["name"] in cluster.get('classes', []) for cat in categories):
                     continue
 
                 channels = set()
