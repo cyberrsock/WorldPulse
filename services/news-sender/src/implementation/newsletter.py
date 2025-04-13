@@ -11,6 +11,23 @@ def make_client(lib, host):
 
 tg_client = make_client(telegram_bot_client, 'http://telegram-bot:8080')
 
+categories_map = {
+    "Внешняя политика РФ": "🌍",
+    "Внутренняя политика РФ": "🏛",
+    "Международная политика": "🤝",
+    "Финансы и рынки (рубль, акции, нефть)": "💰",
+    "Бизнес и стартапы": "🚀",
+    "Криптовалюта и блокчейн": "₿",
+    "ИИ и BigData": "🤖",
+    "Гаджеты и софт": "💻",
+    "Кибербезопасность": "🛡",
+    "Социальные проблемы": "🤝",
+    "Культура и традиции": "🎨",
+    "Криминал": "🚨",
+    "Стихийные бедствия": "🌪",
+    "Наука": "🔬",
+}
+
 # Функция-симуляция отправки сообщения пользователю
 def send_message(user_id: int, message: str):
     global tg_client
@@ -43,8 +60,6 @@ def send_message(user_id: int, message: str):
                 message_text=part[:4095]  # Защита на случай превышения
             )
         )
-        print(part)
-        print("--- часть сообщения ---")
 
     print("=== Сообщение отправлено ===\n")
 
@@ -88,7 +103,6 @@ def process_mailing():
     all_categories = mongo_manager.get_categories()
     all_sources = mongo_manager.get_sources()
     print(f"All sources: {all_sources}")
-    print(f"All news data: {news_data}")
 
     day_mapping = {0: "Пн", 1: "Вт", 2: "Ср", 3: "Чт", 4: "Пт", 5: "Сб", 6: "Вс"}
     today_key = day_mapping[now.weekday()]
@@ -149,7 +163,7 @@ def process_mailing():
         # Или у пользователя первое сообщение
         if next_schedule <= now or not last_sending_str:
             print(f"Пользователь {user_id}: Рассылаем. Время: {next_schedule.strftime('%H:%M:%S')}.")
-            msg = ""
+            news_items = []
             id = 1
             for cluster in clusterized_news:
                 cluster_last_time = dt.fromisoformat(cluster["last_time"]).astimezone(tz)
@@ -170,12 +184,30 @@ def process_mailing():
                 if not any(ch in sources for ch in channels):
                     continue
 
-                msg += f"{id}. {cluster['description']} (Каналы: {', '.join(f'\'{ch}\'' for ch in channels)})\n"
+                # Форматируем категории с эмодзи
+                formatted_categories = [
+                    f"{cat} {categories_map.get(cat, '')}"
+                    for cat in cluster.get('classes', [])
+                ]
+
+                # Форматируем каналы в кавычки
+                formatted_channels = [f"'{ch}'" for ch in channels]
+
+                # Собираем элементы новости
+                news_item = [
+                    f"{id}. {cluster['description']}",
+                    f"\tКатегории: {', '.join(formatted_categories)}",
+                    f"\tКаналы: {', '.join(formatted_channels)}"
+                ]
+                news_items.append(item)
                 id += 1
                 print(f"Сообщение для пользователя {user_id} было обновлено, теперь его длина {len(msg)}")
 
-            if msg:
-                send_message(user_id, msg)
+            if len(news_items) > 0:
+                for i in range(0, len(news_items), 10):
+                    batch = news_items[i:i + 10]
+                    msg = "\n\n".join(batch)  # Двойной перенос между новостями
+                    send_message(user_id, msg)
                 mongo_manager.update_user_last_sending(user_id, now.isoformat())
             else:
                 print(f"Пользователь {user_id}: Нет подходящих новостей.")
