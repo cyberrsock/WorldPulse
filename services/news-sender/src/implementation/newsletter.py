@@ -194,11 +194,9 @@ def process_mailing():
                 formatted_channels = [f"'{ch}'" for ch in channels]
 
                 # Собираем элементы новости
-                news_item = [
-                    f"{id}. {cluster['description']}\n" +
-                    f"\tКатегории: {', '.join(formatted_categories)}\n" +
+                news_item = f"{id}. {cluster['description']}\n" + \
+                    f"\tКатегории: {', '.join(formatted_categories)}\n" + \
                     f"\tКаналы: {', '.join(formatted_channels)}"
-                ]
                 news_items.append(news_item)
                 id += 1
                 print(f"Сообщение для пользователя {user_id} было обновлено, теперь в нем элементов: {len(news_items)}")
