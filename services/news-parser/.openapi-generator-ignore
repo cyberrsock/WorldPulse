@@ -1,2 +1,5 @@
 Dockerfile
 src/endpoints/__init__.py
+src/endpoints/views
+src/implementation
+.gitignore

@@ -252,7 +252,8 @@ class WPTelegramBot:
                 user_schedule[k] = schedule_times[i]
                 i += 1
         self.__users_service.update_user_schedule(user_id, user_schedule)
-        await update.message.reply_text("Настройки сохранены!")
+        schedule_info = bu.print_schedule_info(user_schedule.items())
+        await update.message.reply_text(f"Новое расписание\n{schedule_info}")
         await self.__setup(update, context)
 
     async def __error_handler(self, update: Update, context: CallbackContext):

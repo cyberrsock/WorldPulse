@@ -17,31 +17,23 @@ import pprint
 import re  # noqa: F401
 import json
 
-
-
-
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
-try:
-    from typing import Self
-except ImportError:
-    from typing_extensions import Self
+from typing import Optional, Set
+from typing_extensions import Self
 
-class MlProcessorNewNewsPost200Response(BaseModel):
+class MlProcessorNewNewsPostRequest(BaseModel):
     """
-    MlProcessorNewNewsPost200Response
+    MlProcessorNewNewsPostRequest
     """ # noqa: E501
-    id: StrictStr = Field(description="Уникальный идентификатор новости в БД")
-    text: StrictStr = Field(description="Сокращенный текст новости")
-    embedding: StrictStr = Field(description="Векторное представление новости в виде строки (base64/json)")
-    classes: List[StrictStr] = Field(description="Список определенных классов/категорий новости")
-    __properties: ClassVar[List[str]] = ["id", "text", "embedding", "classes"]
+    text: StrictStr = Field(description="Текст новости")
+    __properties: ClassVar[List[str]] = ["text"]
 
-    model_config = {
-        "populate_by_name": True,
-        "validate_assignment": True,
-        "protected_namespaces": (),
-    }
+    model_config = ConfigDict(
+        populate_by_name=True,
+        validate_assignment=True,
+        protected_namespaces=(),
+    )
 
 
     def to_str(self) -> str:
@@ -54,8 +46,8 @@ class MlProcessorNewNewsPost200Response(BaseModel):
         return json.dumps(self.to_dict())
 
     @classmethod
-    def from_json(cls, json_str: str) -> Self:
-        """Create an instance of MlProcessorNewNewsPost200Response from a JSON string"""
+    def from_json(cls, json_str: str) -> Optional[Self]:
+        """Create an instance of MlProcessorNewNewsPostRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -68,17 +60,19 @@ class MlProcessorNewNewsPost200Response(BaseModel):
           were set at model initialization. Other fields with value `None`
           are ignored.
         """
+        excluded_fields: Set[str] = set([
+        ])
+
         _dict = self.model_dump(
             by_alias=True,
-            exclude={
-            },
+            exclude=excluded_fields,
             exclude_none=True,
         )
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of MlProcessorNewNewsPost200Response from a dict"""
+    def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
+        """Create an instance of MlProcessorNewNewsPostRequest from a dict"""
         if obj is None:
             return None
 
@@ -86,10 +80,7 @@ class MlProcessorNewNewsPost200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "id": obj.get("id"),
-            "text": obj.get("text"),
-            "embedding": obj.get("embedding"),
-            "classes": obj.get("classes")
+            "text": obj.get("text")
         })
         return _obj
 

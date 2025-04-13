@@ -101,6 +101,7 @@ def process_mailing():
             continue
 
         next_schedule = min(schedule_times)
+        print(f"Нужно ли отправлять сообщение пользователю: {next_schedule} <= {now} ({last_sending}?")
         if next_schedule <= now:
             print(f"Пользователь {user_id}: Рассылаем. Время: {next_schedule.strftime('%H:%M:%S')}.")
             msg = ""
@@ -136,7 +137,7 @@ async def run():
     logging.info("Started news sender")
     while True:
         current_min = dt.now().minute
-        if current_min % 5 == 0:
+        if current_min % 2 == 0:
             process_mailing()
             await asyncio.sleep(60)
         else:

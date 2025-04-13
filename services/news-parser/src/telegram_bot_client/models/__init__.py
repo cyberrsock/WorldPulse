@@ -16,3 +16,4 @@
 # import models into model package
 from telegram_bot_client.models.get_greeting200_response import GetGreeting200Response
 from telegram_bot_client.models.get_greeting200_response_tg_bot_thing import GetGreeting200ResponseTgBotThing
+from telegram_bot_client.models.send_message_request import SendMessageRequest
