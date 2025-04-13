@@ -69,6 +69,7 @@ def process_mailing():
         if not day_schedule:
             print(f"Пользователь {user_id}: Нет расписания на сегодня ({today_key}).")
             continue
+        print(f"Пользователь {user_id}, расписание {day_schedule}")
 
         categories = [cat["id"] for cat in settings.get("categories", [])]
         sources = settings.get("sources", [])
