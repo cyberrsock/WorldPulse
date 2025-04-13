@@ -31,7 +31,9 @@ class MongoDBManager:
         }
         with self._get_connection() as client:
             db = client["worldpulse"]
-            db["news"].insert_one(doc)
+            result = db["news"].insert_one(doc)
+            inserted_id = result.inserted_id
+            return inserted_id
 
     def add_or_update_clusterized_news(self, cluster: Dict):
         with self._get_connection() as client:

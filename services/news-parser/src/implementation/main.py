@@ -38,7 +38,7 @@ async def run_parser():
                 ml_data["id"] = str(ml_data["id"])
 
                 # Используем original_channel_name вместо parsed_data['channel_name']
-                mongo.add_news(
+                news_id = mongo.add_news(
                     channel=original_channel_name,
                     msg_id=new['msg_id'],
                     msg=new['msg'],
@@ -50,7 +50,7 @@ async def run_parser():
                     "text": ml_data["text"],
                     "embedding": ml_data["embedding"],
                     "classes": ml_data["classes"],
-                    "msg_id": new["msg_id"],
+                    "msg_id": news_id,
                     "time": new["time"],
                     "channel_name": original_channel_name  # Добавляем имя канала и в кластер
                 }
