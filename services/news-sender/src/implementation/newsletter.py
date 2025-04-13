@@ -173,15 +173,15 @@ def process_mailing():
                 if not any(category_name in cluster.get('classes', []) for category_name in categories):
                     continue
 
-                channels = set()
-                print(f"Cluster ids: {cluster['news_ids']}")
-                for msg_id in cluster["news_ids"]:
-                    news = news_data.get(str(msg_id))
-                    print(f"New: {news}")
-                    if news:
-                        channels.add(news["channel"])
-                print(f"sources: {sources}, channels: {channels}, check_channels: {any(ch in sources for ch in channels):}")
-                if not any(ch in sources for ch in channels):
+                # channels = set()
+                # print(f"Cluster ids: {cluster['news_ids']}")
+                # for msg_id in cluster["news_ids"]:
+                #     news = news_data.get(str(msg_id))
+                #     print(f"New: {news}")
+                #     if news:
+                #         channels.add(news["channel"])
+                # print(f"sources: {sources}, channels: {channels}, check_channels: {any(ch in sources for ch in channels):}")
+                if not any(ch in sources for ch in list(map(lambda x: x["channel_name"], cluster['channels']))):
                     continue
 
                 # Форматируем категории с эмодзи
@@ -191,12 +191,11 @@ def process_mailing():
                 ]
 
                 # Форматируем каналы в кавычки
-                formatted_channels = [f"'{ch}'" for ch in channels]
+                formatted_channels = [f"'[{ch['channel_name']}](https://t.me/c/{str(ch['tg_id'])[4:]}/{ch['msg_id']})'" for ch in cluster['channels']]
 
                 # Собираем элементы новости
                 news_item = f"{id}. {cluster['description']}\n" + \
-                    f"\tКатегории: {', '.join(formatted_categories)}\n" + \
-                    f"\tКаналы: {', '.join(formatted_channels)}"
+                    f"\tИсточники: {', '.join(formatted_channels)}"
                 news_items.append(news_item)
                 id += 1
                 print(f"Сообщение для пользователя {user_id} было обновлено, теперь в нем элементов: {len(news_items)}")
