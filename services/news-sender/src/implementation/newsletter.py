@@ -14,11 +14,39 @@ tg_client = make_client(telegram_bot_client, 'http://telegram-bot:8080')
 # Функция-симуляция отправки сообщения пользователю
 def send_message(user_id: int, message: str):
     global tg_client
-    tg_client.send_message(telegram_bot_client.SendMessageRequest(chat_id=user_id, message_text=message))
     print(f"\n=== Отправляем сообщение пользователю {user_id} ===")
-    print(message)
-    print("=== Сообщение отправлено ===\n")
 
+    # Разбиваем сообщение на части по 4095 символов с учётом переносов строк
+    parts = []
+    current_part = []
+    current_length = 0
+
+    for line in message.split('\n'):
+        line_length = len(line) + 1  # +1 для символа переноса строки
+
+        if current_length + line_length > 4095:
+            parts.append('\n'.join(current_part))
+            current_part = [line]
+            current_length = line_length
+        else:
+            current_part.append(line)
+            current_length += line_length
+
+    if current_part:
+        parts.append('\n'.join(current_part))
+
+    # Отправка всех частей
+    for part in parts:
+        tg_client.send_message(
+            telegram_bot_client.SendMessageRequest(
+                chat_id=user_id,
+                message_text=part[:4095]  # Защита на случай превышения
+            )
+        )
+        print(part)
+        print("--- часть сообщения ---")
+
+    print("=== Сообщение отправлено ===\n")
 
 # Фиктивные данные для пользователей
 # Каждый пользователь имеет: _id, настройки с расписанием (в виде списка строк HH:MM),
@@ -122,6 +150,7 @@ def process_mailing():
         if next_schedule <= now or not last_sending_str:
             print(f"Пользователь {user_id}: Рассылаем. Время: {next_schedule.strftime('%H:%M:%S')}.")
             msg = ""
+            id = 1
             for cluster in clusterized_news:
                 cluster_last_time = dt.fromisoformat(cluster["last_time"]).astimezone(tz)
                 print(f"cluster_last_time: {cluster_last_time}, last_sending: {last_sending}, categories: {cluster.get('classes', [])}, check_categories: {any(category_name in cluster.get('classes', []) for category_name in categories)}")
@@ -141,7 +170,8 @@ def process_mailing():
                 if not any(ch in sources for ch in channels):
                     continue
 
-                msg += f"{cluster['description']} (Каналы: {', '.join(channels)})\n"
+                msg += f"{id}. {cluster['description']} (Каналы: {', '.join(f'\'{ch}\'' for ch in channels)})\n"
+                id += 1
                 print(f"Сообщение для пользователя {user_id} было обновлено, теперь его длина {len(msg)}")
 
             if msg:
