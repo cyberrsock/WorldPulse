@@ -21,14 +21,14 @@ import json
 
 
 from datetime import datetime
-from pydantic import ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 try:
     from typing import Self
 except ImportError:
     from typing_extensions import Self
 
-class GetGreeting200Response(object):
+class GetGreeting200Response(BaseModel):
     """
     GetGreeting200Response
     """ # noqa: E501
