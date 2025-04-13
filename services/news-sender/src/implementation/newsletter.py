@@ -73,11 +73,12 @@ def process_mailing():
         print(f"Пользователь {user_id}, расписание {day_schedule}")
 
         user_category_ids = [str(cat["id"]) for cat in settings.get("categories", [])]
-        categories = [
+        raw_categories = [
             all_categories[cat_id]
             for cat_id in user_category_ids
             if cat_id in all_categories
         ]
+        categories = [cat['name'] for cat in raw_categories]
         sources = settings.get("sources", [])
 
         # Парсинг last_sending с учётом таймзоны
