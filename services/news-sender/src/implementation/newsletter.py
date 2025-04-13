@@ -195,8 +195,8 @@ def process_mailing():
 
                 # Собираем элементы новости
                 news_item = [
-                    f"{id}. {cluster['description']}",
-                    f"\tКатегории: {', '.join(formatted_categories)}",
+                    f"{id}. {cluster['description']}\n" +
+                    f"\tКатегории: {', '.join(formatted_categories)}\n" +
                     f"\tКаналы: {', '.join(formatted_channels)}"
                 ]
                 news_items.append(news_item)
