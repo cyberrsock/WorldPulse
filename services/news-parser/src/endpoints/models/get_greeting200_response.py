@@ -23,7 +23,6 @@ import json
 from datetime import datetime
 from pydantic import ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from endpoints.models.object import object
 try:
     from typing import Self
 except ImportError:
