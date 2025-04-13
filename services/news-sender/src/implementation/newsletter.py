@@ -201,7 +201,7 @@ def process_mailing():
                 ]
                 news_items.append(news_item)
                 id += 1
-                print(f"Сообщение для пользователя {user_id} было обновлено, теперь его длина {len(msg)}")
+                print(f"Сообщение для пользователя {user_id} было обновлено, теперь в нем элементов: {len(news_items)}")
 
             if len(news_items) > 0:
                 for i in range(0, len(news_items), 10):
@@ -221,7 +221,7 @@ async def run():
     logging.info("Started news sender")
     while True:
         current_min = dt.now().minute
-        if current_min % 2 == 0:
+        if current_min % 3 == 0:
             process_mailing()
             await asyncio.sleep(60)
         else:
