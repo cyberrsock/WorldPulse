@@ -3,9 +3,6 @@
 from fastapi.testclient import TestClient
 
 
-from endpoints.models.get_greeting200_response import GetGreeting200Response  # noqa: F401
-
-
 def test_get_greeting(client: TestClient):
     """Test case for get_greeting
 
