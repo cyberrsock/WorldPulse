@@ -123,7 +123,11 @@ def process_mailing():
             for cat_id in user_category_ids
             if cat_id in all_categories
         ]
-        categories = [cat['name'] for cat in raw_categories]
+        categories = [
+            "Финансы и рынки" if cat['name'] == "Финансы и рынки (рубль, акции, нефть)"
+            else cat['name']
+            for cat in raw_categories
+        ]
         user_source_ids = list(map(str, settings.get("sources", [])))
         print(f"User source ids: {user_source_ids}")
         sources = [
@@ -167,7 +171,7 @@ def process_mailing():
             id = 1
             for cluster in clusterized_news:
                 cluster_last_time = dt.fromisoformat(cluster["last_time"]).astimezone(tz)
-                print(f"cluster_last_time: {cluster_last_time}, last_sending: {last_sending}, categories: {cluster.get('classes', [])}, check_categories: {any(category_name in cluster.get('classes', []) for category_name in categories)}")
+                print(f"cluster_last_time: {cluster_last_time}, last_sending: {last_sending}, news_categories: {cluster.get('classes', [])}, check_categories: {any(category_name in cluster.get('classes', []) for category_name in categories)}")
                 if cluster_last_time < last_sending:
                     continue
                 if not any(category_name in cluster.get('classes', []) for category_name in categories):
@@ -208,6 +212,7 @@ def process_mailing():
                     send_message(user_id, msg)
                 mongo_manager.update_user_last_sending(user_id, now.isoformat())
             else:
+                send_message(user_id, "Пока не нашлось свежих новостей по вашим интересам. Проверяем источники — скоро будет что-то интересное!")
                 print(f"Пользователь {user_id}: Нет подходящих новостей.")
                 mongo_manager.update_user_last_sending(user_id, now.isoformat())
         else:
